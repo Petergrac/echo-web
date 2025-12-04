@@ -21,7 +21,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 
 const LeftBar = () => {
   return (
-    <div className="outline-1 min-w-20 max-w-[602px] max-h-screen flex flex-col justify-between sticky top-0 left-0">
+    <div className="outline-1 min-w-20 max-w-[602px] h-screen flex flex-col justify-between sticky top-0 left-0">
       <div className="flex flex-col pt-10 justify-between items-center md:items-start">
         <Link href="" className="icon-hover">
           <Home />

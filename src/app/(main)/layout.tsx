@@ -1,11 +1,13 @@
 // @ts-expect-error - there is a css error
-import "./globals.css";
+import "../globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { ThemeProvider } from "@/src/components/ui/theme-provider";
 import LeftBar from "@/src/components/layout/LeftBar";
 import RightBar from "@/src/components/layout/RightBar";
+import { SidebarProvider } from "@/src/components/ui/sidebar";
+import Sidebar from "@/src/components/layout/Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} w-full flex justify-center h-screen overflow-hidden ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} w-full sm:max-w-[900px] mx-auto flex justify-center h-screen overflow-hidden ${geistMono.variable} antialiased`}
       >
         {" "}
         <ThemeProvider
@@ -39,11 +41,19 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="hidden sm:block">
-            <LeftBar />
-          </div>
-          <main className="min-w-150 min-h-screen overflow-y-auto">{children}</main>
-          <RightBar />
+          <SidebarProvider>
+            <div className="sm:hidden">
+              <Sidebar  />
+            </div>
+            <div className="hidden sm:block">
+              <LeftBar />
+            </div>
+
+            <main className="w-full sm:min-w-150 min-h-screen overflow-y-auto">
+              {children}
+            </main>
+            <RightBar />
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>
