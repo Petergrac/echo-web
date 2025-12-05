@@ -79,11 +79,11 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  --background: oklch(0% 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0% 0 0);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: oklch(0% 0 0);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
@@ -94,7 +94,7 @@
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(26.448% 0.00003 271.152);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.488 0.243 264.376);
@@ -102,7 +102,7 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
+  --sidebar: oklch(0% 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -126,6 +126,15 @@
 .icon-hover {
   @apply hover:bg-gray-300/20 p-4 rounded-full flex gap-5 text-2xl items-center  transition;
 }
-.drop-left{
+.drop-left {
   @apply flex items-center p-2 gap-2 hover:bg-gray-400/30 w-full rounded-full;
+}
+.select-area {
+  @apply flex outline-none items-center gap-2 justify-start text-sky-500 w-fit border-none bg-transparent py-1 hover:bg-sky-500/10 px-3 rounded-full;
+}
+.auto-textarea {
+  @apply w-full placeholder:text-gray-400 bg-transparent pl-3 pt-3 placeholder:text-lg outline-none rounded-sm min-h-3 resize-none;
+}
+.glow {
+  @apply backdrop-blur-2xl backdrop-saturate-200 shadow-[0_0_10px_0px];
 }

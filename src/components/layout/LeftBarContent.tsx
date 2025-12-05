@@ -78,7 +78,7 @@ const LeftBar = () => {
             <span className="hidden md:inline text-lg">More</span>
             <span className="md:hidden sr-only">More</span>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuContent align="start" className="w-48 bg-black glow">
             <DropdownMenuItem asChild>
               <Link
                 href="/chats"
@@ -132,7 +132,7 @@ const LeftBar = () => {
               <MoreHorizontal className="hidden md:block w-5 h-5 text-muted-foreground" />
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-56">
+          <DropdownMenuContent align="center" className="w-56 bg-black glow">
             <DropdownMenuItem asChild>
               <button
                 onClick={() => router.push(`/users/${user?.username}`)}

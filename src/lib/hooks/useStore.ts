@@ -1,10 +1,8 @@
-// stores/auth.store.ts - Enhanced version
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import api from "@/lib/api/axios";
 import { UserType } from "@/types/user-type";
 import { useMemo } from "react";
-import { redirect, useRouter } from "next/navigation";
 
 interface AuthState {
   //* User state
