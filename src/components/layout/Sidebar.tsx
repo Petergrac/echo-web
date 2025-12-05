@@ -50,10 +50,10 @@ const AppSideBar = () => {
           <p className="text-sm text-gray-500">@johndoe</p>
 
           <div className="flex justify-start gap-4 pt-5">
-            <p className="text-gray-500 text-xs">
+            <p className="text-gray-500 text-sm">
               <span className="font-bold text-white">120 </span> following
             </p>
-            <p className="text-gray-500 text-xs">
+            <p className="text-gray-500 text-sm">
               <span className="font-bold text-white">200 </span> followers
             </p>
           </div>

@@ -1,0 +1,13 @@
+export interface UserType{
+  id: string;
+  email: string;
+  username: string;
+  avatar: string;
+  firstName: string;
+  lastName: string;
+  bio?: string;
+  website?: string;
+  location?: string;
+  emailVerified: boolean;
+  createdAt: Date;
+}
