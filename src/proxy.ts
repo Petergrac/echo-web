@@ -9,7 +9,7 @@ const publicRoutes = [
 
 export function proxy(req: NextRequest) {
   const token = req.cookies.get("refresh_token")?.value;
-  console.log(token);
+
   const pathname = req.nextUrl.pathname;
   //* Redirect routes
   const authenticatedHomeRoute = "/feed";

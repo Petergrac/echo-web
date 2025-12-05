@@ -2,14 +2,16 @@
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useSidebar } from "../ui/sidebar";
+import { useCurrentUser } from "@/lib/hooks/useStore";
 
 const TopBar = () => {
   const { toggleSidebar } = useSidebar();
+  const user = useCurrentUser();
   return (
     <div className="fixed top-0 z-0 w-full bg-black backdrop:blur-2xl  flex-col supports-backdrop-filter:bg-background/80 flex sm:w-[600px] outline">
       <div className="pl-6 pt-4 sm:hidden" onClick={toggleSidebar}>
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarImage src={user?.avatar || `https://github.com/shadcn.png`} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
       </div>

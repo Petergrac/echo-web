@@ -8,6 +8,7 @@ import {
   MessageCircle,
   MessageSquareIcon,
   MoreHorizontal,
+  RefreshCcwIcon,
   Search,
   Settings,
   User2,
@@ -21,29 +22,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
+import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { useAuthStore, useCurrentUser } from "@/lib/hooks/useStore";
 import api from "@/lib/api/axios";
 
-interface LeftBarContentProps {
-  user: {
-    id?: string;
-    firstName?: string;
-    username?: string;
-    email?: string;
-    avatar?: string;
-  } | null;
-}
-
-const LeftBarContent = ({ user }: LeftBarContentProps) => {
+const LeftBar = () => {
   const router = useRouter();
 
-  const handleLogout = async () => {
-    try {
-      await api.get("/auth/logout");
-      router.push("/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+  const user = useCurrentUser();
+  const { logout, refreshUser } = useAuthStore();
 
   const navItems = [
     { href: "/home", icon: Home, label: "Home" },
@@ -53,10 +41,23 @@ const LeftBarContent = ({ user }: LeftBarContentProps) => {
     { href: "/bookmarks", icon: Bookmark, label: "Bookmarks" },
     { href: `/users/${user?.username || ""}`, icon: User2, label: "Profile" },
   ];
-
+  async function handleLogout() {
+    logout();
+    //* Logout from the server
+    await api.get("/auth/logout");
+    //* Redirect user to login page
+    router.replace("/login");
+  }
   return (
     <div className="max-w-[602px] h-screen flex flex-col justify-between sticky top-0 left-0 border-r border-border">
       <div className="flex flex-col pt-10 justify-between items-center md:items-start px-2 md:px-6 w-full">
+        <div
+          onClick={() => refreshUser()}
+          className="pl-3 gap-2 flex items-center justify-start"
+        >
+          <RefreshCcwIcon />
+          <p className="text-sm">Refresh User</p>
+        </div>
         {/* Navigation Items */}
         {navItems.map((item) => (
           <Link
@@ -185,8 +186,4 @@ const LeftBarContent = ({ user }: LeftBarContentProps) => {
   );
 };
 
-// Need to import LogOut and DropdownMenuSeparator
-import { LogOut } from "lucide-react";
-import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-
-export default LeftBarContent;
+export default LeftBar;

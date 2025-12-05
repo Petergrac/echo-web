@@ -2,7 +2,6 @@
 
 import { Switch } from "@/components/ui/switch";
 import api from "@/lib/api/axios";
-import { useCurrentUser } from "@/lib/hooks/useStore";
 import {
   SmartphoneChargingIcon,
   Mail,
@@ -26,7 +25,6 @@ const LoginPage = () => {
   const router = useRouter();
 
   //* Zustand usage - add initialization check
-  const user = useCurrentUser();
   const [isClient, setIsClient] = useState(false);
 
   //* Response Errors
@@ -58,7 +56,7 @@ const LoginPage = () => {
       if (email.includes("@")) {
         isEmail = true;
       }
-      const { data } = await api.post(
+      await api.post(
         "auth/login",
         isEmail
           ? {
@@ -94,8 +92,8 @@ const LoginPage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="w-12 h-12 mx-auto bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl animate-pulse"></div>
-          <h1 className="text-4xl font-bold mt-4 bg-gradient-to-l from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+          <div className="w-12 h-12 mx-auto bg-linear-to-r from-cyan-500 to-purple-500 rounded-xl animate-pulse"></div>
+          <h1 className="text-4xl font-bold mt-4 bg-linear-to-l from-cyan-400 to-purple-400 bg-clip-text text-transparent">
             Echo
           </h1>
         </div>
@@ -115,10 +113,10 @@ const LoginPage = () => {
         {/* Header with animation */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-linear-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-l from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-linear-to-l from-cyan-400 to-purple-400 bg-clip-text text-transparent">
               Echo
             </h1>
           </div>
@@ -220,7 +218,7 @@ const LoginPage = () => {
               type="button" // Change from "submit" to "button"
               disabled={isLoading}
               onClick={handleLogin}
-              className="w-full bg-to-r from-cyan-500 to-purple-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-cyan-600 hover:to-purple-600 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-linear-to-r from-cyan-500 to-purple-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-cyan-600 hover:to-purple-600 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>

@@ -1,4 +1,4 @@
-export interface UserType{
+export interface UserType {
   id: string;
   email: string;
   username: string;
@@ -10,4 +10,6 @@ export interface UserType{
   location?: string;
   emailVerified: boolean;
   createdAt: Date;
+  followersCount: string | number;
+  followingCount: string | number;
 }

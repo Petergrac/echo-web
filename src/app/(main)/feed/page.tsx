@@ -1,9 +1,11 @@
+import TopBar from "@/components/layout/TopBar";
+
 const Feed = () => {
   return (
     <div>
-      Enter
+      <TopBar />
     </div>
   );
-}
+};
 
 export default Feed;
