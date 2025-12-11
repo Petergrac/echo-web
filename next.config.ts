@@ -26,6 +26,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  assetPrefix: "public",
 };
 
 export default nextConfig;

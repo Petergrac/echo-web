@@ -1,5 +1,5 @@
 import TopBar from "@/components/layout/TopBar";
-import TweetComposer from "@/components/profile/ProfileBar";
+import TweetComposer from "@/components/post/TweetComposer";
 
 const Feed = () => {
   return (
