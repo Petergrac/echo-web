@@ -9,6 +9,7 @@ import RightBar from "@/components/layout/RightBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Sidebar from "@/components/layout/Sidebar";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,6 +57,7 @@ export default function RootLayout({
               </main>
               <RightBar />
             </SidebarProvider>
+            <Toaster position="top-center" richColors={true}/>
           </AuthProvider>
         </ThemeProvider>
       </body>

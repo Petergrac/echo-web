@@ -1,23 +1,49 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
-import { Button } from "../ui/button";
+import { useState, useRef } from "react";
+import { Button } from "../../ui/button";
 import AutoResizeTextarea from "./AutoResizeTextArea";
 import CharacterProgress from "./CharacterProgress";
 import FilePreview from "./Carousel";
 import MediaUpload from "./MediaUpload";
-import ReplySettingsSelect from "./ReplySettingsSelect";
+import VisibilitySelect from "./VisibilitySelect";
 import ToolbarActions from "./ToolbarActions";
-import UserAvatar from "../profile/UserAvatar";
+import UserAvatar from "../../profile/UserAvatar";
+import api from "@/lib/api/axios";
+import { toast } from "sonner";
 
-type ReplySetting = "everyone" | "following" | "mentioned";
+type VisibilitySetting = "public" | "followers" | "private";
 
 const TweetComposer = () => {
   const [tweetContent, setTweetContent] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
-  const [replySetting, setReplySetting] = useState<ReplySetting>("everyone");
+  const [visibilitySetting, setVisibilitySetting] =
+    useState<VisibilitySetting>("public");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Handle post submission
+  //TODO===> Function to insert emoji at cursor position
+  const insertEmoji = (emoji: string) => {
+    if (!textareaRef.current) return;
+
+    const textarea = textareaRef.current;
+    const cursorPosition = textarea.selectionStart;
+    const textBefore = tweetContent.substring(0, cursorPosition);
+    const textAfter = tweetContent.substring(textarea.selectionEnd);
+
+    const newText = textBefore + emoji + textAfter;
+    setTweetContent(newText);
+
+    //*  Focus back to textarea and position cursor after emoji
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        cursorPosition + emoji.length,
+        cursorPosition + emoji.length
+      );
+    }, 0);
+  };
+  //todo=> Handle post submission
   const handleSubmit = async () => {
     if (!tweetContent.trim() && (!files || files.length === 0)) {
       alert("Please add some content or media");
@@ -26,39 +52,39 @@ const TweetComposer = () => {
 
     const formData = new FormData();
 
-    // Add tweet content
+    //* 1.Add tweet content
     formData.append("content", tweetContent);
-    formData.append("replySetting", replySetting);
+    formData.append("visibility", visibilitySetting);
 
-    // Add files if any
+    //* 2.Add files if any
     if (files) {
-      Array.from(files).forEach((file, index) => {
-        formData.append(`file${index}`, file);
+      Array.from(files).forEach((file) => {
+        formData.append("media", file);
       });
     }
 
     try {
-      console.log("Posting tweet with:", {
-        content: tweetContent,
-        replySetting,
-        fileCount: files?.length || 0,
+      const response = await api.post("/posts", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
-
-      // TODO: Replace with your actual API endpoint
-      // const response = await fetch("/api/tweets", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-
-      // Clear form after successful submission
+      console.log(response.data);
       setTweetContent("");
       setFiles(null);
-      setReplySetting("everyone");
+      setVisibilitySetting("public");
 
-      alert("Tweet posted successfully!");
-    } catch (error) {
-      console.error("Error posting tweet:", error);
-      alert("Failed to post tweet. Please try again.");
+      toast.success("Tweet posted successfully!");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      const errors = error.response.data.message;
+      if (errors instanceof Array) {
+        errors.forEach((e) => {
+          toast.error(e);
+        });
+      } else {
+        toast.error(errors);
+      }
     }
   };
 
@@ -77,8 +103,9 @@ const TweetComposer = () => {
         <UserAvatar className="hidden md:block" />
 
         <div className="flex flex-col gap-5 w-full">
-          {/* Textarea */}
+          {/*//* Textarea */}
           <AutoResizeTextarea
+            ref={textareaRef}
             value={tweetContent}
             onChange={setTweetContent}
             onKeyDown={handleKeyDown}
@@ -86,24 +113,24 @@ const TweetComposer = () => {
             maxLength={280}
           />
 
-          {/* Media Upload Section */}
+          {/*//? Media Upload Section */}
           <MediaUpload files={files} setFiles={setFiles} maxFiles={5} />
 
-          {/* File Preview (when files are selected) */}
+          {/*//? File Preview (when files are selected) */}
           {files && files.length > 0 && (
             <FilePreview files={files} setFiles={setFiles} />
           )}
 
-          {/* Reply Settings and Character Counter */}
+          {/*//? Reply Settings and Character Counter */}
           <div className="flex justify-between items-center">
-            <ReplySettingsSelect
-              value={replySetting}
-              onChange={setReplySetting}
+            <VisibilitySelect
+              value={visibilitySetting}
+              onChange={setVisibilitySetting}
             />
             <CharacterProgress tweetSize={tweetContent.length} />
           </div>
 
-          {/* Toolbar and Post Button */}
+          {/*//? Toolbar and Post Button */}
           <div className="flex border-t justify-between w-full pl-4">
             <ToolbarActions
               onMediaClick={() => {
@@ -111,10 +138,10 @@ const TweetComposer = () => {
                 input.type = "file";
                 input.multiple = true;
                 input.accept = "image/*,video/*";
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 input.onchange = (e: any) => setFiles(e.target.files);
                 input.click();
               }}
+              onEmojiSelect={insertEmoji}
             />
             <Button
               onClick={handleSubmit}

@@ -5,14 +5,18 @@ import {
   ImageIcon,
   LocationEdit,
   ToolCaseIcon,
-  Smile,
 } from "lucide-react";
+import EmojiPickerButton from "./EmojiPicker";
 
 interface ToolbarActionsProps {
   onMediaClick?: () => void;
+  onEmojiSelect?: (emoji: string) => void;
 }
 
-const ToolbarActions = ({ onMediaClick }: ToolbarActionsProps) => {
+const ToolbarActions = ({
+  onMediaClick,
+  onEmojiSelect,
+}: ToolbarActionsProps) => {
   return (
     <div className="my-6 flex gap-4">
       <button
@@ -23,13 +27,10 @@ const ToolbarActions = ({ onMediaClick }: ToolbarActionsProps) => {
       >
         <ImageIcon size={20} />
       </button>
-      <button
-        type="button"
-        className="p-2 text-sky-500 hover:text-sky-600 hover:bg-sky-500/10 rounded-full transition-colors"
-        title="Emoji"
-      >
-        <Smile size={20} />
-      </button>
+
+      {/* Pass the onEmojiSelect prop to EmojiPickerButton */}
+      <EmojiPickerButton onEmojiSelect={onEmojiSelect} />
+
       <button
         type="button"
         className="p-2 text-sky-500 hover:text-sky-600 hover:bg-sky-500/10 rounded-full transition-colors"

@@ -10,6 +10,13 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+  return config;
+});
+
 //* 2.Track refresh state
 let isRefreshing = false;
 let failedQueue: Array<{

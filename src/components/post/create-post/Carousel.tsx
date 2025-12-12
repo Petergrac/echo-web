@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardContent } from "../ui/card";
+import { Card, CardContent } from "../../ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -11,7 +11,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { X, Video, File, Image as ImageIcon } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 
 interface FilePreviewProps {
   files: FileList | null;
@@ -25,13 +25,13 @@ const FilePreview = ({ files, setFiles }: FilePreviewProps) => {
   const [videoSrcs, setVideoSrcs] = React.useState<Record<string, string>>({});
   const [imageSrcs, setImageSrcs] = React.useState<Record<string, string>>({});
 
-  // Convert FileList to array
+  //* 1.Convert FileList to array
   const fileArray = React.useMemo(() => {
     if (!files) return [];
     return Array.from(files).slice(0, 5);
   }, [files]);
 
-  // Create object URLs when files change
+  //* 2.Create object URLs when files change
   React.useEffect(() => {
     const newImageSrcs: Record<string, string> = {};
     const newVideoSrcs: Record<string, string> = {};
@@ -53,9 +53,9 @@ const FilePreview = ({ files, setFiles }: FilePreviewProps) => {
     setImageSrcs(newImageSrcs);
     setVideoSrcs(newVideoSrcs);
 
-    // Cleanup function
+    //* 2.1 Cleanup function
     return () => {
-      // Revoke all URLs on cleanup
+      //* 2.1.1 Revoke all URLs on cleanup
       Object.values(newImageSrcs).forEach((url) => URL.revokeObjectURL(url));
       Object.values(newVideoSrcs).forEach((url) => URL.revokeObjectURL(url));
     };
@@ -63,20 +63,18 @@ const FilePreview = ({ files, setFiles }: FilePreviewProps) => {
 
   React.useEffect(() => {
     if (!api) return;
-
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
-
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap() + 1);
     });
   }, [api]);
 
-  // Handle file removal
+  //* 3.Handle file removal
   const handleRemoveFile = (index: number) => {
     if (!files) return;
 
-    // Revoke the URL for the removed file
+    //* 3.1Revoke the URL for the removed file
     const fileToRemove = fileArray[index];
     const key = `${fileToRemove.name}-${fileToRemove.size}-${index}`;
 
@@ -96,7 +94,7 @@ const FilePreview = ({ files, setFiles }: FilePreviewProps) => {
       });
     }
 
-    // Update files
+    //* 4.Update files
     const dataTransfer = new DataTransfer();
     Array.from(files).forEach((file, i) => {
       if (i !== index) {
@@ -107,7 +105,7 @@ const FilePreview = ({ files, setFiles }: FilePreviewProps) => {
     setFiles(dataTransfer.files.length > 0 ? dataTransfer.files : null);
   };
 
-  // Helper to get URL for a file
+  //* Helper to get URL for a file
   const getFileUrl = (file: File, index: number) => {
     const key = `${file.name}-${file.size}-${index}`;
 

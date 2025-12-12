@@ -8,7 +8,7 @@ const TopBar = () => {
   const { toggleSidebar } = useSidebar();
   const user = useCurrentUser();
   return (
-    <div className="fixed top-0 z-0 w-full bg-black backdrop:blur-2xl  flex-col supports-backdrop-filter:bg-background/80 flex sm:w-[600px] outline">
+    <div className="fixed top-0 z-56 w-full bg-black backdrop:blur-2xl  flex-col supports-backdrop-filter:bg-background/80 flex sm:w-[600px] outline">
       <div className="pl-6 pt-4 sm:hidden" onClick={toggleSidebar}>
         <Avatar>
           <AvatarImage src={user?.avatar || `https://github.com/shadcn.png`} />
