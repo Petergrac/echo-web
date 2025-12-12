@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         hostname: "picsum.photos",
         protocol: "https",
       },
+       {
+        hostname: "res.cloudinary.com",
+        protocol: "https",
+      },
     ],
   },
   async rewrites() {
