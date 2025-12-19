@@ -1,7 +1,7 @@
 "use client";
-
 import { Switch } from "@/components/ui/switch";
 import api from "@/lib/api/axios";
+import axios from "axios";
 import {
   SmartphoneChargingIcon,
   Mail,
@@ -20,7 +20,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   //* Use router instead of redirect
   const router = useRouter();
 
@@ -56,8 +56,8 @@ const LoginPage = () => {
       if (email.includes("@")) {
         isEmail = true;
       }
-      await api.post(
-        "auth/login",
+      await axios.post(
+        "api/backend/auth/login",
         isEmail
           ? {
               email,
@@ -66,15 +66,10 @@ const LoginPage = () => {
           : { username: email, password }
       );
 
-      // Use router.push instead of redirect
       router.push("/feed");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error);
-      
-      // Remove the redirect catch logic
-      console.error(error.response?.data?.message, error.response?.status);
-      
       if (error.response?.data?.message instanceof Array) {
         setStatus({ ...errorStatus, emailError: true });
         setEmError(error.response.data.message[0]);
@@ -87,7 +82,6 @@ const LoginPage = () => {
     }
   };
 
-  // Don't render Zustand-dependent content during SSR
   if (!isClient) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -237,7 +231,7 @@ const LoginPage = () => {
           <p className="text-slate-300">
             Don&apos;t have an account?{" "}
             <Link
-              href="/signup"
+              href={`/register`}
               className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
             >
               Sign up now
@@ -253,11 +247,17 @@ const LoginPage = () => {
           {/* Footer */}
           <p className="text-sm text-slate-400 pt-4">
             By continuing, you agree to our{" "}
-            <Link href="/terms" className="hover:text-slate-300 transition-colors">
+            <Link
+              href="/terms"
+              className="hover:text-slate-300 transition-colors"
+            >
               Terms
             </Link>{" "}
             and{" "}
-            <Link href="/privacy" className="hover:text-slate-300 transition-colors">
+            <Link
+              href="/privacy"
+              className="hover:text-slate-300 transition-colors"
+            >
               Privacy Policy
             </Link>
           </p>

@@ -3,14 +3,6 @@ export interface Media {
   mediaUrl: string;
   resourceType: string;
 }
-
-export interface PostStatus {
-  hasLiked: boolean;
-  hasReposted: boolean;
-  hasBookmarked: boolean;
-  hasReplied?: boolean;
-}
-
 export interface Post {
   id: string;
   content: string;
@@ -22,7 +14,11 @@ export interface Post {
   viewCount: number;
   mediaCount: number;
   media: Media[];
-  postStatus?: PostStatus;
+  hasLiked: boolean;
+  hasReposted: boolean;
+  hasBookmarked: boolean;
+  repostContent: string | null;
+  hasReplied?: boolean;
   author?: {
     id: string;
     username: string;

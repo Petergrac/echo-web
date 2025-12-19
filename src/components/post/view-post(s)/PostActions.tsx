@@ -1,7 +1,6 @@
-// components/post/PostActions.tsx
 "use client";
 
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import {
   MessageCircle,
   Repeat2,
@@ -9,8 +8,24 @@ import {
   Bookmark,
   Share,
   BarChart3,
+  PenIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import api from "@/lib/api/axios";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../ui/dropdown-menu";
+import AutoResizeTextarea from "../create-post/AutoResizeTextArea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../ui/dialog";
+import { useRouter } from "next/navigation";
 
 interface PostActionsProps {
   postId: string;
@@ -27,47 +42,48 @@ interface PostActionsProps {
     hasBookmarked: boolean;
     hasReplied?: boolean;
   };
-  onAction?: (action: string, newState: boolean) => Promise<void>;
+  quote: string | null;
+  setQuote: React.Dispatch<SetStateAction<string | null>>;
 }
 
 export default function PostActions({
   postId,
   stats,
+  quote,
+  setQuote,
   initialStatus = {
     hasLiked: true,
     hasReposted: false,
     hasBookmarked: false,
     hasReplied: false,
   },
-  onAction,
 }: PostActionsProps) {
   const [status, setStatus] = useState(initialStatus);
   const [counts, setCounts] = useState(stats);
   const [isLoading, setIsLoading] = useState<string | null>(null);
-
+  const [quoteOpen, setQuoteOpen] = useState(false);
+  const router = useRouter();
   const formatCount = (count: number): string => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
     return count.toString();
   };
 
-  const handleAction = async (action: keyof typeof status) => {
+  const handleAction = async (
+    action: keyof typeof status,
+    quote?: string | null,
+    active: boolean = false
+  ) => {
     if (isLoading) return;
-
     setIsLoading(action);
     const newValue = !status[action];
-
-    // Optimistic update for status
     setStatus((prev) => ({ ...prev, [action]: newValue }));
-
-    // Optimistic update for counts
     const countKeyMap = {
       hasLiked: "likeCount",
       hasReposted: "repostCount",
       hasBookmarked: "bookmarkCount",
       hasReplied: "replyCount",
     } as const;
-
     const countKey = countKeyMap[action];
     if (countKey) {
       setCounts((prev) => ({
@@ -79,16 +95,22 @@ export default function PostActions({
     }
 
     try {
-      if (onAction) {
-        await onAction(action, newValue);
-      } else {
-        // Default API call
-        await fetch(`/api/posts/${postId}/${action}`, {
-          method: newValue ? "POST" : "DELETE",
-        });
-      }
+      if (action === "hasReposted" && active) setQuote("");
+      await api.post(
+        `/engagement/posts/${postId}/${
+          action === "hasBookmarked"
+            ? "bookmark"
+            : action === "hasLiked"
+            ? "like"
+            : "repost"
+        }`,
+        {
+          content: quote,
+        }
+      );
     } catch (error) {
       // Revert on error
+      setQuote("");
       setStatus((prev) => ({ ...prev, [action]: !newValue }));
       if (countKey) {
         setCounts((prev) => ({
@@ -104,10 +126,6 @@ export default function PostActions({
     }
   };
 
-  const handleReply = () => {
-    console.log("Open reply for post:", postId);
-  };
-
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -120,7 +138,6 @@ export default function PostActions({
       toast.success("Link copied to clipboard!");
     }
   };
-
   const actionItems = [
     {
       id: "reply",
@@ -128,9 +145,9 @@ export default function PostActions({
       label: "Reply",
       color: "text-gray-500 hover:text-sky-500 hover:bg-sky-500/10",
       activeColor: "text-sky-500 bg-sky-500/10",
-      onClick: handleReply,
       count: counts.replyCount,
       showCount: true,
+      onClick: () => router.push(`/posts/${postId}`),
       active: status.hasReplied,
     },
     {
@@ -139,7 +156,6 @@ export default function PostActions({
       label: "Repost",
       color: "text-gray-500 hover:text-green-500 hover:bg-green-500/10",
       activeColor: "text-green-500 bg-green-500/10",
-      onClick: () => handleAction("hasReposted"),
       count: counts.repostCount,
       showCount: true,
       active: status.hasReposted,
@@ -178,10 +194,6 @@ export default function PostActions({
       icon: BarChart3,
       label: "Analytics",
       color: "text-gray-500 hover:text-purple-500 hover:bg-purple-500/10",
-      onClick: () => {
-        // Show analytics modal
-        console.log("Show analytics for post:", postId);
-      },
       count: counts.viewCount,
       showCount: true,
       countLabel: "Views",
@@ -201,11 +213,46 @@ export default function PostActions({
           title={item.label}
         >
           <div className="relative">
-            <item.icon
-              className={`w-5 h-5 transition-transform group-hover:scale-110 ${
-                item.active ? "fill-current" : ""
-              }`}
-            />
+            {item.id !== "repost" && (
+              <item.icon
+                className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                  item.active ? "fill-current" : ""
+                }`}
+              />
+            )}
+            {item.id === "repost" && (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="outline-none" asChild>
+                  <item.icon
+                    className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                      item.active ? "fill-current" : ""
+                    }`}
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleAction("hasReposted", null, item.active)
+                    }
+                  >
+                    <div className="flex gap-2">
+                      <Repeat2 />
+                      <p className="">Repost</p>
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (!item.active) setQuoteOpen(true);
+                    }}
+                    className="flex gap-2 items-center"
+                    disabled={item.active}
+                  >
+                    <PenIcon />
+                    <p>Quote</p>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             {item.active && item.id === "like" && (
               <div className="absolute inset-0 bg-red-500/20 rounded-full animate-ping" />
             )}
@@ -233,6 +280,41 @@ export default function PostActions({
           )}
         </button>
       ))}
+      <Dialog open={quoteOpen} onOpenChange={setQuoteOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Quote Post</DialogTitle>
+          </DialogHeader>
+
+          <AutoResizeTextarea
+            value={quote ?? ""}
+            onChange={setQuote}
+            placeholder="Add your thoughts"
+            rows={3}
+            className="text-base"
+          />
+
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              onClick={() => setQuoteOpen(false)}
+              className="text-sm text-gray-500"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={() => {
+                handleAction("hasReposted", quote);
+                setQuoteOpen(false);
+              }}
+              disabled={quote !== null && !quote.trim()}
+              className="px-4 py-1 rounded-full bg-green-500 text-white disabled:opacity-50"
+            >
+              Quote
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

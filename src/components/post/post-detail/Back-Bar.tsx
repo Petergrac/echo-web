@@ -1,0 +1,15 @@
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
+const BackBar = () => {
+  return (
+    <div className="fixed pl-2 py-5 top-0 z-56 w-full bg-transparent backdrop-blur-2xl flex-col supports-backdrop-filter:bg-background/8 flex sm:w-[600px]">
+      <Link href={`/feed`} className="flex gap-3">
+        <ArrowLeft />
+        <p className="font-bold">Post</p>
+      </Link>
+    </div>
+  );
+};
+
+export default BackBar;

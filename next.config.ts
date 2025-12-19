@@ -8,8 +8,16 @@ const nextConfig: NextConfig = {
         hostname: "picsum.photos",
         protocol: "https",
       },
-       {
+      {
         hostname: "res.cloudinary.com",
+        protocol: "https",
+      },
+      {
+        hostname: "avatars.githubusercontent.com",
+        protocol: "https",
+      },
+      {
+        hostname: "cdn.jsdelivr.net",
         protocol: "https",
       },
     ],
@@ -30,7 +38,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  assetPrefix: "public",
 };
 
 export default nextConfig;
