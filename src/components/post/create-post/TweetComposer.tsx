@@ -64,12 +64,11 @@ const TweetComposer = () => {
     }
 
     try {
-      const response = await api.post("/posts", formData, {
+      await api.post("/posts", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response.data);
       setTweetContent("");
       setFiles(null);
       setVisibilitySetting("public");

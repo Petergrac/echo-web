@@ -10,6 +10,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import Sidebar from "@/components/layout/Sidebar";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
+import QueryProvider from "@/components/providers/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,20 +45,22 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <SidebarProvider>
-              <div className="sm:hidden">
-                <Sidebar />
-              </div>
-              <div className="hidden sm:block">
-                <LeftBar />
-              </div>
+            <QueryProvider>
+              <SidebarProvider>
+                <div className="sm:hidden">
+                  <Sidebar />
+                </div>
+                <div className="hidden sm:block">
+                  <LeftBar /> 
+                </div>
 
-              <main className="w-full sm:min-w-150 min-h-screen overflow-y-auto">
-                {children}
-              </main>
-              <RightBar />
-            </SidebarProvider>
-            <Toaster position="top-center" richColors={true}/>
+                <main className="w-full sm:min-w-150 h-screen overflow-y-auto">
+                  {children}
+                </main>
+                <RightBar />
+              </SidebarProvider>
+              <Toaster position="top-center" richColors={true} />
+            </QueryProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

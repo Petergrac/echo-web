@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
 import PostCard from "./PostCard";
 import { Post } from "@/types/post";
-import api from "@/lib/api/axios";
+import PostDetailLoader from "../post-detail/PostDetailLoader";
+import { useUniversalInfiniteQuery } from "@/lib/hooks/useUniversalInfiniteQuery";
+import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 
 type FeedType = "forYou" | "following";
 
@@ -11,54 +12,47 @@ interface PostsListProps {
 }
 
 export default function PostsList({ feedType }: PostsListProps) {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const endpoint =
+    feedType === "forYou" ? "/posts/feed/for-you" : "/posts/feed/following";
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+  //* 1. Use the Universal Hook
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useUniversalInfiniteQuery<Post>(
+    ["posts", feedType], //* Unique key per feed type
+    endpoint,
+    20
+  );
 
-        const endpoint =
-          feedType === "forYou" ? "/posts/feed/for-you" : "/posts/feed/following";
+  //* 2. Flatten the nested pages into a single array
+  const rawPosts = data?.pages.flatMap((page) => page.items) ?? [];
 
-        const response = await api(endpoint);
-
-        if (!response.data) {
-          throw new Error(`Failed to fetch ${feedType} posts`);
-        }
-
-        const data = response.data;
-        setPosts(data.posts);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load posts");
-        console.error("Error fetching posts:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPosts();
-  }, [feedType]);
-
+  //* 3. Deduplicate by post ID
+  const allPosts = Array.from(
+    new Map(rawPosts.map((post) => [post.id, post])).values()
+  );
+  //* Handle Initial Loading State
   if (isLoading) {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse">
-            <div className="h-40 bg-gray-800 rounded-lg"></div>
-          </div>
+          <PostDetailLoader key={i} />
         ))}
       </div>
     );
   }
 
+  //* Handle Error State
   if (error) {
+    console.log(error);
     return (
       <div className="text-center py-10">
-        <p className="text-red-500 mb-2">{error}</p>
+        <p className="text-red-500 mb-2">Failed to load posts</p>
         <button
           onClick={() => window.location.reload()}
           className="text-sky-500 hover:underline"
@@ -69,7 +63,8 @@ export default function PostsList({ feedType }: PostsListProps) {
     );
   }
 
-  if (!posts.length) {
+  //* Handle Empty State
+  if (!allPosts.length) {
     return (
       <div className="text-center py-10 text-gray-500">
         {feedType === "forYou"
@@ -81,7 +76,8 @@ export default function PostsList({ feedType }: PostsListProps) {
 
   return (
     <div className="space-y-4">
-      {posts.map((post) => (
+      {/*//* 3. Render the flattened list */}
+      {allPosts.map((post) => (
         <div
           key={post.id}
           className="cursor-pointer hover:opacity-95 transition-opacity"
@@ -89,6 +85,13 @@ export default function PostsList({ feedType }: PostsListProps) {
           <PostCard post={post} />
         </div>
       ))}
+
+      {/*//*  4. The Observable Trigger for Infinite Scroll */}
+      <InfiniteScrollTrigger
+        hasNextPage={hasNextPage}
+        fetchNextPage={fetchNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+      />
     </div>
   );
 }

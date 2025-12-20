@@ -2,11 +2,6 @@
 
 import { Media } from "@/types/post";
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -17,21 +12,14 @@ import Image from "next/image";
 
 interface MediaViewerProps {
   media: Media[];
-  open: boolean;
   startIndex: number;
-  onClose: () => void;
 }
 
 export default function MediaViewer({
   media,
-  open,
   startIndex,
-  onClose,
 }: MediaViewerProps) {
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-screen p-0 bg-black">
-        <DialogTitle />
         <Carousel
           opts={{ startIndex }}
           className="w-full h-[80vh]"
@@ -63,7 +51,5 @@ export default function MediaViewer({
           <CarouselPrevious className="left-4" />
           <CarouselNext className="right-4" />
         </Carousel>
-      </DialogContent>
-    </Dialog>
   );
 }

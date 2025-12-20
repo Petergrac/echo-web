@@ -55,7 +55,7 @@ const AutoResizeTextarea = forwardRef<
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className={`w-full placeholder:text-gray-400 bg-transparent placeholder:text-lg outline-none rounded-sm min-h-[${
+        className={`w-full text-sm placeholder:text-sm  placeholder:text-gray-400 bg-transparent outline-none rounded-sm min-h-[${
           rows * 24
         }px] resize-none ${className}`}
         rows={rows}

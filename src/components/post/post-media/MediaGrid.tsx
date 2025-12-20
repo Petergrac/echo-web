@@ -71,12 +71,17 @@ export default function MediaGrid({ media }: MediaGridProps) {
         )}
       </div>
 
-      <MediaViewer
-        media={media}
-        open={viewerOpen}
-        startIndex={activeIndex}
-        onClose={() => setViewerOpen(false)}
-      />
+      {viewerOpen && (
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/95">
+          <button
+            onClick={() => setViewerOpen(false)}
+            className="absolute top-4 right-4 text-white text-2xl"
+          >
+            ✕
+          </button>
+          <MediaViewer media={media} startIndex={activeIndex} />
+        </div>
+      )}
     </>
   );
 }
