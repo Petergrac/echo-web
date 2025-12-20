@@ -82,7 +82,7 @@ export default function PostsList({ feedType }: PostsListProps) {
           key={post.id}
           className="cursor-pointer hover:opacity-95 transition-opacity"
         >
-          <PostCard post={post} />
+          <PostCard post={post} feedType={feedType} />
         </div>
       ))}
 

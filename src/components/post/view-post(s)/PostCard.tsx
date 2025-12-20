@@ -14,9 +14,14 @@ interface PostCardProps {
   onMediaClick?: (mediaIndex: number) => void;
   onReply?: () => void;
   className?: string;
+  feedType: "forYou" | "following";
 }
 
-export default function PostCard({ post, className = "" }: PostCardProps) {
+export default function PostCard({
+  post,
+  feedType,
+  className = "",
+}: PostCardProps) {
   const [quote, setQuote] = useState(post.repostContent);
   console.log(quote);
   return (
@@ -50,6 +55,7 @@ export default function PostCard({ post, className = "" }: PostCardProps) {
         <div className="px-4 py-2">
           <PostActions
             quote={quote}
+            feedType={feedType}
             setQuote={setQuote}
             postId={post.id}
             initialStatus={{

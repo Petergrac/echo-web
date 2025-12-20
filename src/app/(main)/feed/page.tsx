@@ -10,7 +10,7 @@ const Feed = () => {
   return (
     <div className="flex flex-col w-full">
       <TopBar onFeedTypeChange={setFeedType} currentFeedType={feedType} />
-      <TweetComposer />
+      <TweetComposer feedType={feedType} />
       <PostsList feedType={feedType} />
     </div>
   );

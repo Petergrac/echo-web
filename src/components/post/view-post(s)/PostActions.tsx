@@ -1,6 +1,6 @@
 "use client";
 
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useOptimistic, useTransition } from "react";
 import {
   MessageCircle,
   Repeat2,
@@ -26,6 +26,8 @@ import {
   DialogTitle,
 } from "../../ui/dialog";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 interface PostActionsProps {
   postId: string;
@@ -44,86 +46,125 @@ interface PostActionsProps {
   };
   quote: string | null;
   setQuote: React.Dispatch<SetStateAction<string | null>>;
+  feedType: "forYou" | "following";
+}
+
+type ActionType = "hasLiked" | "hasReposted" | "hasBookmarked" | "hasReplied";
+
+interface StatusState {
+  hasLiked: boolean;
+  hasReposted: boolean;
+  hasBookmarked: boolean;
+  hasReplied: boolean;
 }
 
 export default function PostActions({
   postId,
   stats,
   quote,
+  feedType,
   setQuote,
   initialStatus = {
-    hasLiked: true,
+    hasLiked: false,
     hasReposted: false,
     hasBookmarked: false,
     hasReplied: false,
   },
 }: PostActionsProps) {
-  const [status, setStatus] = useState(initialStatus);
   const [counts, setCounts] = useState(stats);
-  const [isLoading, setIsLoading] = useState<string | null>(null);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  //* Optimistic state for immediate UI updates
+  const [optimisticStatus, addOptimisticStatus] = useOptimistic(
+    initialStatus,
+    (state: StatusState, action: { type: ActionType; value: boolean }) => ({
+      ...state,
+      [action.type]: action.value,
+    })
+  );
+
   const formatCount = (count: number): string => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
     return count.toString();
   };
 
-  const handleAction = async (
-    action: keyof typeof status,
-    quote?: string | null,
-    active: boolean = false
-  ) => {
-    if (isLoading) return;
-    setIsLoading(action);
-    const newValue = !status[action];
-    setStatus((prev) => ({ ...prev, [action]: newValue }));
-    const countKeyMap = {
-      hasLiked: "likeCount",
-      hasReposted: "repostCount",
-      hasBookmarked: "bookmarkCount",
-      hasReplied: "replyCount",
-    } as const;
-    const countKey = countKeyMap[action];
-    if (countKey) {
-      setCounts((prev) => ({
-        ...prev,
-        [countKey]: newValue
-          ? (prev[countKey] ?? 0) + 1
-          : (prev[countKey] ?? 0) - 1,
-      }));
+  //* Generic mutation for all post actions
+  const actionMutation = useMutation({
+    mutationFn: ({
+      action,
+      content,
+    }: {
+      action: "like" | "bookmark" | "repost";
+      content?: string | null;
+    }) => {
+      return api.post(`/engagement/posts/${postId}/${action}`, {
+        ...(content && { content }),
+      });
+    },
+    onSuccess: (_, variables) => {
+      //* Invalidate posts cache to refresh counts
+      queryClient.invalidateQueries({ queryKey: ["posts", feedType] });
+      const actionLabels = {
+        like: "Post liked",
+        bookmark: "Post bookmarked",
+        repost: "Post reposted",
+      };
+      toast.success(actionLabels[variables.action]);
+    },
+    onError: (error, variables) => {
+      const actionLabels = {
+        like: "like",
+        bookmark: "bookmark",
+        repost: "repost",
+      };
+      toast.error(`Failed to ${actionLabels[variables.action]} post`);
+    },
+  });
+
+  const handleAction = (action: ActionType, content?: string | null) => {
+    if (action === "hasReplied") {
+      router.push(`/posts/${postId}`);
+      return;
     }
 
-    try {
-      if (action === "hasReposted" && active) setQuote("");
-      await api.post(
-        `/engagement/posts/${postId}/${
-          action === "hasBookmarked"
-            ? "bookmark"
-            : action === "hasLiked"
-            ? "like"
-            : "repost"
-        }`,
-        {
-          content: quote,
-        }
-      );
-    } catch (error) {
-      // Revert on error
-      setQuote("");
-      setStatus((prev) => ({ ...prev, [action]: !newValue }));
+    const newValue = !optimisticStatus[action];
+
+    startTransition(() => {
+      addOptimisticStatus({ type: action, value: newValue });
+
+      //* Update counts optimistically
+      const countKeyMap = {
+        hasLiked: "likeCount",
+        hasReposted: "repostCount",
+        hasBookmarked: "bookmarkCount",
+      } as const;
+      const countKey = countKeyMap[action as keyof typeof countKeyMap];
       if (countKey) {
         setCounts((prev) => ({
           ...prev,
           [countKey]: newValue
-            ? (prev[countKey] ?? 0) - 1
-            : (prev[countKey] ?? 0) + 1,
+            ? (prev[countKey] ?? 0) + 1
+            : (prev[countKey] ?? 0) - 1,
         }));
       }
-      console.error(`Failed to ${action} post:`, error);
-    } finally {
-      setIsLoading(null);
-    }
+    });
+
+    //* Call mutation
+    const actionMap = {
+      hasLiked: "like",
+      hasReposted: "repost",
+      hasBookmarked: "bookmark",
+    } as const;
+    const apiAction = actionMap[action as keyof typeof actionMap];
+
+    actionMutation.mutate({
+      action: apiAction,
+      content,
+    });
   };
 
   const handleShare = () => {
@@ -134,10 +175,10 @@ export default function PostActions({
       });
     } else {
       navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
-      // Show toast notification
       toast.success("Link copied to clipboard!");
     }
   };
+
   const actionItems = [
     {
       id: "reply",
@@ -148,7 +189,7 @@ export default function PostActions({
       count: counts.replyCount,
       showCount: true,
       onClick: () => router.push(`/posts/${postId}`),
-      active: status.hasReplied,
+      active: optimisticStatus.hasReplied,
     },
     {
       id: "repost",
@@ -158,7 +199,7 @@ export default function PostActions({
       activeColor: "text-green-500 bg-green-500/10",
       count: counts.repostCount,
       showCount: true,
-      active: status.hasReposted,
+      active: optimisticStatus.hasReposted,
     },
     {
       id: "like",
@@ -169,7 +210,7 @@ export default function PostActions({
       onClick: () => handleAction("hasLiked"),
       count: counts.likeCount,
       showCount: true,
-      active: status.hasLiked,
+      active: optimisticStatus.hasLiked,
     },
     {
       id: "bookmark",
@@ -179,7 +220,7 @@ export default function PostActions({
       activeColor: "text-yellow-500 bg-yellow-500/10",
       onClick: () => handleAction("hasBookmarked"),
       showCount: false,
-      active: status.hasBookmarked,
+      active: optimisticStatus.hasBookmarked,
     },
     {
       id: "share",
@@ -202,84 +243,109 @@ export default function PostActions({
 
   return (
     <div className="flex items-center justify-between pt-3 px-5">
-      {actionItems.map((item) => (
-        <button
-          key={item.id}
-          onClick={item.onClick}
-          disabled={isLoading === item.id}
-          className={`group flex items-center space-x-2 p-2 rounded-full transition-colors ${
-            item.active ? item.activeColor : item.color
-          } ${isLoading === item.id ? "opacity-50 cursor-not-allowed" : ""}`}
-          title={item.label}
-        >
-          <div className="relative">
-            {item.id !== "repost" && (
-              <item.icon
-                className={`w-5 h-5 transition-transform group-hover:scale-110 ${
-                  item.active ? "fill-current" : ""
-                }`}
-              />
-            )}
-            {item.id === "repost" && (
-              <DropdownMenu>
-                <DropdownMenuTrigger className="outline-none" asChild>
+      {actionItems.map((item) => {
+        if (item.id === "repost") {
+          return (
+            <DropdownMenu key={item.id}>
+              <DropdownMenuTrigger asChild>
+                <button
+                  disabled={isPending}
+                  className={`group flex items-center space-x-2 p-2 rounded-full transition-colors ${
+                    item.activeColor && item.active
+                      ? item.activeColor
+                      : item.color
+                  } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
+                  title={item.label}
+                >
                   <item.icon
                     className={`w-5 h-5 transition-transform group-hover:scale-110 ${
                       item.active ? "fill-current" : ""
                     }`}
                   />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleAction("hasReposted", null, item.active)
-                    }
-                  >
-                    <div className="flex gap-2">
-                      <Repeat2 />
-                      <p className="">Repost</p>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      if (!item.active) setQuoteOpen(true);
-                    }}
-                    className="flex gap-2 items-center"
-                    disabled={item.active}
-                  >
-                    <PenIcon />
-                    <p>Quote</p>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-            {item.active && item.id === "like" && (
-              <div className="absolute inset-0 bg-red-500/20 rounded-full animate-ping" />
-            )}
-          </div>
+                  {item.showCount && item.count !== undefined && (
+                    <span
+                      className={`text-sm font-medium ${
+                        item.active
+                          ? "opacity-100"
+                          : "opacity-70 group-hover:opacity-100"
+                      }`}
+                    >
+                      {formatCount(item.count)}
+                    </span>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  onClick={() => handleAction("hasReposted")}
+                  disabled={isPending}
+                >
+                  <div className="flex gap-2">
+                    <Repeat2 />
+                    <p>Repost</p>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (!item.active) setQuoteOpen(true);
+                  }}
+                  className="flex gap-2 items-center"
+                  disabled={item.active || isPending}
+                >
+                  <PenIcon />
+                  <p>Quote</p>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        }
 
-          {item.showCount && item.count !== undefined && (
-            <span
-              className={`text-sm font-medium ${
-                item.active
-                  ? "opacity-100"
-                  : "opacity-70 group-hover:opacity-100"
-              }`}
-            >
-              {item.id === "analytics" && item.countLabel ? (
-                <>
-                  <span>{formatCount(item.count)}</span>
-                  <span className="ml-1 text-xs opacity-70">
-                    {item.countLabel}
-                  </span>
-                </>
-              ) : (
-                formatCount(item.count)
+        return (
+          <button
+            key={item.id}
+            onClick={item.onClick}
+            disabled={isPending}
+            className={`group flex items-center space-x-2 p-2 rounded-full transition-colors ${
+              item.active ? item.activeColor : item.color
+            } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
+            title={item.label}
+          >
+            <div className="relative">
+              <item.icon
+                className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                  item.active ? "fill-current" : ""
+                }`}
+              />
+              {item.active && item.id === "like" && (
+                <div className="absolute inset-0 bg-red-500/20 rounded-full animate-ping" />
               )}
-            </span>
-          )}
-        </button>
-      ))}
+            </div>
+
+            {item.showCount && item.count !== undefined && (
+              <span
+                className={`text-sm font-medium ${
+                  item.active
+                    ? "opacity-100"
+                    : "opacity-70 group-hover:opacity-100"
+                }`}
+              >
+                {item.id === "analytics" && item.countLabel ? (
+                  <>
+                    <span>{formatCount(item.count)}</span>
+                    <span className="ml-1 text-xs opacity-70">
+                      {item.countLabel}
+                    </span>
+                  </>
+                ) : (
+                  formatCount(item.count)
+                )}
+              </span>
+            )}
+          </button>
+        );
+      })}
+
+      {/* Quote Dialog */}
       <Dialog open={quoteOpen} onOpenChange={setQuoteOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -297,20 +363,25 @@ export default function PostActions({
           <div className="flex justify-end gap-2 mt-4">
             <button
               onClick={() => setQuoteOpen(false)}
-              className="text-sm text-gray-500"
+              disabled={isPending}
+              className="text-sm text-gray-500 disabled:opacity-50"
             >
               Cancel
             </button>
 
             <button
               onClick={() => {
-                handleAction("hasReposted", quote);
-                setQuoteOpen(false);
+                if (quote?.trim()) {
+                  handleAction("hasReposted", quote);
+                  setQuoteOpen(false);
+                } else {
+                  toast.warning("Quote cannot be empty");
+                }
               }}
-              disabled={quote !== null && !quote.trim()}
-              className="px-4 py-1 rounded-full bg-green-500 text-white disabled:opacity-50"
+              disabled={!quote?.trim() || isPending}
+              className="px-4 py-1 rounded-full bg-green-500 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             >
-              Quote
+              {isPending ? "Posting..." : "Quote"}
             </button>
           </div>
         </DialogContent>

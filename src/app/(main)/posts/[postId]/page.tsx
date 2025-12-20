@@ -21,7 +21,12 @@ const SelectedPost = () => {
   const queryClient = useQueryClient();
 
   //* 1.Fetch Single Post
-  const { data: postDetails, isLoading: PostLoading } = useQuery({
+  const {
+    data: postDetails,
+    isLoading: PostLoading,
+    error,
+    isError,
+  } = useQuery({
     queryKey: ["postDetail"],
     queryFn: async () => {
       const response = await api.get(`posts/${postId}`);
@@ -60,9 +65,9 @@ const SelectedPost = () => {
       toast.error("Failed to comment");
     },
   });
-  const handleSubmit = () => {
-    replyMutation.mutate();
-  };
+  if (isError) {
+    toast.error(error.message);
+  }
   const allReplies = data?.pages.flatMap((page) => page.items) ?? [];
   if (!postDetails && !PostLoading)
     return (
@@ -92,7 +97,7 @@ const SelectedPost = () => {
             setReplyInput={setReplyInput}
             placeholder="Comment this reply"
             media={media}
-            handleSubmit={handleSubmit}
+            handleSubmit={() => replyMutation.mutate()}
           />
           <CommentSection topLevelReplies={allReplies} />
         </>

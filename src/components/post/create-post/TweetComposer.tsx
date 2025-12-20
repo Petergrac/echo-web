@@ -12,15 +12,47 @@ import ToolbarActions from "./ToolbarActions";
 import UserAvatar from "../../profile/UserAvatar";
 import api from "@/lib/api/axios";
 import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type VisibilitySetting = "public" | "followers" | "private";
-
-const TweetComposer = () => {
+type feedTypeType = "forYou" | "following";
+const TweetComposer = ({ feedType }: { feedType: feedTypeType }) => {
   const [tweetContent, setTweetContent] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
   const [visibilitySetting, setVisibilitySetting] =
     useState<VisibilitySetting>("public");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const queryClient = useQueryClient();
+
+  const postMutation = useMutation({
+    mutationFn: async () => {
+      await api.post(
+        `posts/`,
+        {
+          content: tweetContent,
+          visibility: visibilitySetting,
+          media: files,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    },
+    onSuccess: () => {
+      setTweetContent("");
+      queryClient.invalidateQueries({
+        queryKey: ["posts", feedType],
+      });
+      toast.success("Tweet posted successfully!");
+      setFiles(null);
+      setVisibilitySetting("public");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
 
   //TODO===> Function to insert emoji at cursor position
   const insertEmoji = (emoji: string) => {
@@ -46,45 +78,10 @@ const TweetComposer = () => {
   //todo=> Handle post submission
   const handleSubmit = async () => {
     if (!tweetContent.trim() && (!files || files.length === 0)) {
-      alert("Please add some content or media");
+      toast.warning("Please add some content or media");
       return;
     }
-
-    const formData = new FormData();
-
-    //* 1.Add tweet content
-    formData.append("content", tweetContent);
-    formData.append("visibility", visibilitySetting);
-
-    //* 2.Add files if any
-    if (files) {
-      Array.from(files).forEach((file) => {
-        formData.append("media", file);
-      });
-    }
-
-    try {
-      await api.post("/posts", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      setTweetContent("");
-      setFiles(null);
-      setVisibilitySetting("public");
-
-      toast.success("Tweet posted successfully!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      const errors = error.response.data.message;
-      if (errors instanceof Array) {
-        errors.forEach((e) => {
-          toast.error(e);
-        });
-      } else {
-        toast.error(errors);
-      }
-    }
+    postMutation.mutate();
   };
 
   // Handle keyboard shortcuts

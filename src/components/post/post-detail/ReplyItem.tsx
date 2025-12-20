@@ -112,7 +112,6 @@ export default function ReplyItem({
   const toggleExpand = async () => {
     setIsExpanded(!isExpanded);
   };
-
   return (
     <div className="flex flex-col w-full">
       {/* Reply Body */}
@@ -184,13 +183,20 @@ export default function ReplyItem({
             />
           )}
           {preview && reply.media.length > 0 && (
-            <div className="fixed sm:w-150 w-full z-80 outline-20 bg-blue-700 left-1/2 sm:-translate-1/3">
+            <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/95">
+              <button
+                onClick={() => setPreview(false)}
+                className="absolute top-4 right-4 text-white text-2xl"
+              >
+                ✕
+              </button>
               <Image
                 src={reply.media[0].mediaUrl}
                 alt="reply-media"
                 width={400}
-                height={400}
+                onClick={() => setPreview((f) => !f)}
                 className="mt-1 rounded-sm"
+                height={400}
               />
             </div>
           )}

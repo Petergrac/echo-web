@@ -66,8 +66,9 @@ const ReplyCompose = ({
           </button>
           <button
             type="submit"
+            disabled={!value.trim() && !media}
             onClick={handleSubmit}
-            className="p-2 hover:bg-sky-700 transition-all duration-300 bg-sky-500 text-sm rounded-2xl"
+            className="p-2 disabled:text-gray-400 disabled:bg-sky-700 hover:bg-sky-700 transition-all duration-300 bg-sky-500 text-sm rounded-2xl"
           >
             Submit
           </button>
