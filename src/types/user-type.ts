@@ -12,4 +12,6 @@ export interface UserType {
   createdAt: Date;
   followersCount: string | number;
   followingCount: string | number;
+  postCount: number;
+  isFollowing: boolean;
 }

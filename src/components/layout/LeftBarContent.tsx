@@ -39,7 +39,7 @@ const LeftBar = () => {
     { href: "/notifications", icon: BellIcon, label: "Notifications" },
     { href: "/messages", icon: MessageSquareIcon, label: "Messages" },
     { href: "/bookmarks", icon: Bookmark, label: "Bookmarks" },
-    { href: `/users/${user?.username || ""}`, icon: User2, label: "Profile" },
+    { href: `/${user?.username || ""}`, icon: User2, label: "Profile" },
   ];
   async function handleLogout() {
     logout();

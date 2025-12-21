@@ -138,3 +138,6 @@
 .glow {
   @apply backdrop-blur-2xl backdrop-saturate-200 shadow-[0_0_10px_0px];
 }
+.profile-icon {
+  @apply w-30 aspect-square rounded-full absolute left-5 outline-4 outline-black -translate-y-1/2  h-30;
+}

@@ -13,32 +13,7 @@ import {
 import { useAuthActions, useCurrentUser } from "@/lib/hooks/useStore";
 import api from "@/lib/api/axios";
 import { useRouter } from "next/navigation";
-const links = [
-  {
-    url: "/chat",
-    icon: MessageCircle,
-    index: 1,
-    name: "Chat",
-  },
-  {
-    url: "/profile",
-    icon: User,
-    index: 2,
-    name: "Profile",
-  },
-  {
-    url: "/bookmarks",
-    icon: Bookmark,
-    index: 3,
-    name: "Bookmarks",
-  },
-  {
-    url: "/settings",
-    icon: Settings,
-    index: 4,
-    name: "Settings",
-  },
-];
+
 const AppSideBar = () => {
   const router = useRouter();
   const user = useCurrentUser();
@@ -50,6 +25,32 @@ const AppSideBar = () => {
     //* Redirect user to login page
     router.replace("/login");
   }
+  const links = [
+    {
+      url: "/chat",
+      icon: MessageCircle,
+      index: 1,
+      name: "Chat",
+    },
+    {
+      url: `/${user?.username}`,
+      icon: User,
+      index: 2,
+      name: "Profile",
+    },
+    {
+      url: "/bookmarks",
+      icon: Bookmark,
+      index: 3,
+      name: "Bookmarks",
+    },
+    {
+      url: "/settings",
+      icon: Settings,
+      index: 4,
+      name: "Settings",
+    },
+  ];
   return (
     <Sidebar>
       <SidebarMenu className="pl-5 pt-5 bg-black h-full outline-none border-none">
