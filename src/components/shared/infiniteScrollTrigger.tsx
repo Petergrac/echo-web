@@ -50,6 +50,11 @@ export default function InfiniteScrollTrigger({
       {isFetchingNextPage && (
         <p className="p-4 rounded-full animate-spin border-y border-sky-500" />
       )}
+      {!hasNextPage && !isFetchingNextPage && (
+        <p className="text-center text-sky-500 py-10 font-semibold">
+          No more data
+        </p>
+      )}
     </div>
   );
 }

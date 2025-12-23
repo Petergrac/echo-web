@@ -53,7 +53,7 @@ const LeftBar = () => {
       <div className="flex flex-col pt-10 justify-between items-center md:items-start px-2 md:px-6 w-full">
         <div
           onClick={() => refreshUser()}
-          className="pl-3 gap-2 flex items-center justify-start"
+          className="pl-3 hidden  gap-2 md:flex items-center justify-start"
         >
           <RefreshCcwIcon />
           <p className="text-sm">Refresh User</p>
@@ -135,7 +135,7 @@ const LeftBar = () => {
           <DropdownMenuContent align="center" className="w-56 bg-black glow">
             <DropdownMenuItem asChild>
               <button
-                onClick={() => router.push(`/users/${user?.username}`)}
+                onClick={() => router.push(`/${user?.username}`)}
                 className="w-full flex items-center gap-2 cursor-pointer"
               >
                 <User2 className="w-4 h-4" />

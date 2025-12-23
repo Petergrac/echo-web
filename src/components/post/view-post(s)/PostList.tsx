@@ -4,6 +4,7 @@ import { Post } from "@/types/post";
 import PostDetailLoader from "../post-detail/PostDetailLoader";
 import { useUniversalInfiniteQuery } from "@/lib/hooks/useUniversalInfiniteQuery";
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
+import { toast } from "sonner";
 
 type FeedType = "forYou" | "following";
 
@@ -20,6 +21,7 @@ export default function PostsList({ feedType }: PostsListProps) {
     data,
     isLoading,
     error,
+    isError,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -48,8 +50,8 @@ export default function PostsList({ feedType }: PostsListProps) {
   }
 
   //* Handle Error State
-  if (error) {
-    console.log(error);
+  if (isError) {
+    toast.error(`${error}`);
     return (
       <div className="text-center py-10">
         <p className="text-red-500 mb-2">Failed to load posts</p>
@@ -82,7 +84,7 @@ export default function PostsList({ feedType }: PostsListProps) {
           key={post.id}
           className="cursor-pointer hover:opacity-95 transition-opacity"
         >
-          <PostCard post={post} feedType={feedType} />
+          <PostCard post={post} />
         </div>
       ))}
 

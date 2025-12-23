@@ -57,7 +57,7 @@ export default function PostContent({
       }
 
       return (
-        <Link href={`posts/${id}`} key={index}>
+        <Link href={`/posts/${id}`} key={index}>
           {part}
         </Link>
       );

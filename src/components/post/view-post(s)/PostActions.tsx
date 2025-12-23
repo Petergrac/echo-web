@@ -42,11 +42,10 @@ interface PostActionsProps {
     hasLiked: boolean;
     hasReposted: boolean;
     hasBookmarked: boolean;
-    hasReplied?: boolean;
+    hasReplied: boolean;
   };
   quote: string | null;
   setQuote: React.Dispatch<SetStateAction<string | null>>;
-  feedType: "forYou" | "following";
 }
 
 type ActionType = "hasLiked" | "hasReposted" | "hasBookmarked" | "hasReplied";
@@ -62,7 +61,6 @@ export default function PostActions({
   postId,
   stats,
   quote,
-  feedType,
   setQuote,
   initialStatus = {
     hasLiked: false,
@@ -85,7 +83,6 @@ export default function PostActions({
       [action.type]: action.value,
     })
   );
-
   const formatCount = (count: number): string => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
@@ -106,8 +103,11 @@ export default function PostActions({
       });
     },
     onSuccess: (_, variables) => {
-      //* Invalidate posts cache to refresh counts
-      queryClient.invalidateQueries({ queryKey: ["posts", feedType] });
+      //* Invalidate posts cache to refresh counts      
+      queryClient.invalidateQueries({
+        queryKey: ["posts"],
+      });
+
       const actionLabels = {
         like: "Post liked",
         bookmark: "Post bookmarked",
@@ -121,7 +121,9 @@ export default function PostActions({
         bookmark: "bookmark",
         repost: "repost",
       };
-      toast.error(`Failed to ${actionLabels[variables.action]} post`);
+      toast.error(
+        `Failed to ${actionLabels[variables.action]} post.${error.message}`
+      );
     },
   });
 

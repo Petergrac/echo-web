@@ -35,7 +35,7 @@ export default function PostHeader({ post }: PostHeaderProps) {
   return (
     <div className="flex items-start justify-between z-0">
       <Link
-        href={`${post.author.username}`}
+        href={`/${post.author.username}`}
         className="flex items-start space-x-3 flex-1"
       >
         <Avatar className="h-10 w-10">

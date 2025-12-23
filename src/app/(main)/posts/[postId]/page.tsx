@@ -1,9 +1,10 @@
 "use client";
 import BackBar from "@/components/post/post-detail/Back-Bar";
 import CommentSection from "@/components/post/post-detail/CommentSection";
-import PostDetails from "@/components/post/post-detail/PostDetailCard";
+import PostDetailLoader from "@/components/post/post-detail/PostDetailLoader";
 import ReplyCompose from "@/components/post/post-detail/ReplyCompose";
 import ReplyLoader from "@/components/post/post-detail/ReplyLoader";
+import PostCard from "@/components/post/view-post(s)/PostCard";
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 import api from "@/lib/api/axios";
 import { useUniversalInfiniteQuery } from "@/lib/hooks/useUniversalInfiniteQuery";
@@ -27,7 +28,7 @@ const SelectedPost = () => {
     error,
     isError,
   } = useQuery({
-    queryKey: ["postDetail"],
+    queryKey: ["posts", postId],
     queryFn: async () => {
       const response = await api.get(`posts/${postId}`);
       return response.data;
@@ -58,6 +59,9 @@ const SelectedPost = () => {
       setValue("");
       toast.success("Comment successful");
       queryClient.invalidateQueries({
+        queryKey: ["posts", postId],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["replies", postId],
       });
     },
@@ -65,6 +69,17 @@ const SelectedPost = () => {
       toast.error("Failed to comment");
     },
   });
+  //* Handle Loading state
+  if (PostLoading)
+    return (
+      <>
+        <PostDetailLoader />
+        {[1, 2, 3, 4].map((i) => (
+          <ReplyLoader key={i} />
+        ))}
+      </>
+    );
+  //* Handle Error
   if (isError) {
     toast.error(error.message);
   }
@@ -86,22 +101,18 @@ const SelectedPost = () => {
   return (
     <>
       <BackBar />
-      <PostDetails loading={PostLoading} post={postDetails} />
-      {PostLoading && [1, 2, 3, 4].map((i) => <ReplyLoader key={i} />)}
-      {!PostLoading && (
-        <>
-          <ReplyCompose
-            value={value}
-            setValue={setValue}
-            setMedia={setMedia}
-            setReplyInput={setReplyInput}
-            placeholder="Comment this reply"
-            media={media}
-            handleSubmit={() => replyMutation.mutate()}
-          />
-          <CommentSection topLevelReplies={allReplies} />
-        </>
-      )}
+      <div className="my-9"/>
+      <PostCard post={postDetails} />
+      <ReplyCompose
+        value={value}
+        setValue={setValue}
+        setMedia={setMedia}
+        setReplyInput={setReplyInput}
+        placeholder="Comment this reply"
+        media={media}
+        handleSubmit={() => replyMutation.mutate()}
+      />
+      <CommentSection topLevelReplies={allReplies} />
       <InfiniteScrollTrigger
         hasNextPage={hasNextPage}
         fetchNextPage={fetchNextPage}

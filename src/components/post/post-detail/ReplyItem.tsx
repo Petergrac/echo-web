@@ -118,7 +118,7 @@ export default function ReplyItem({
       <div className="flex gap-3 py-3">
         {/* Avatar/Vertical Line Area */}
         <Link
-          href={`/users/${reply.author.username}`}
+          href={`/${reply.author.username}`}
           className="flex flex-col items-center"
         >
           <Image

@@ -1,6 +1,5 @@
 "use client";
 import { Switch } from "@/components/ui/switch";
-import api from "@/lib/api/axios";
 import axios from "axios";
 import {
   SmartphoneChargingIcon,
@@ -35,8 +34,6 @@ const LoginPage = () => {
     emailError: false,
     passwordError: false,
   });
-
-  // Ensure client-side only for Zustand
   useEffect(() => {
     setIsClient(true);
   }, []);

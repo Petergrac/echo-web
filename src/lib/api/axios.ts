@@ -43,17 +43,14 @@ api.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
-
     //* 4.1 Only handle 401 errors (reject others)
     if (error.response?.status !== 401 || !originalRequest) {
       return Promise.reject(error);
     }
-
     //* 4.2 Prevent infinite retry loops => reject if the original req failed the first time
     if (originalRequest._retry) {
       return Promise.reject(error);
     }
-
     //* 4.3 Don't refresh if we're already trying to refresh
     if (originalRequest.url?.includes("/auth/refresh")) {
       //* Redirect to login if refresh fails

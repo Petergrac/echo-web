@@ -9,8 +9,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useCurrentUser } from "@/lib/hooks/useStore";
 import { useEffect } from "react";
 
-export default function UserLikedPosts() {
+export default function UserRePosts() {
   //* 1. Use the Universal Hook
+
   const { username } = useParams() as { username: string };
   const router = useRouter();
   const user = useCurrentUser();
@@ -20,7 +21,6 @@ export default function UserLikedPosts() {
       router.replace(`/${username}`);
     }
   }, [user, username, router]);
-
   const {
     data,
     isLoading,
@@ -30,8 +30,8 @@ export default function UserLikedPosts() {
     hasNextPage,
     isFetchingNextPage,
   } = useUniversalInfiniteQuery<Post>(
-    ["posts", "likes", username], //* Unique key per feed type
-    `engagement/me/likes`,
+    ["posts", "reposts", username], //* Unique key per feed type
+    `engagement/me/reposts`,
     20
   );
 
@@ -59,7 +59,7 @@ export default function UserLikedPosts() {
       toast.error("Too many requests, Try again after one minute");
     return (
       <div className="text-center py-10">
-        <p className="text-red-500 mb-2">Failed to load liked posts</p>
+        <p className="text-red-500 mb-2">Failed to load Reposts</p>
         <button
           onClick={() => window.location.reload()}
           className="text-sky-500 hover:underline"
@@ -74,11 +74,10 @@ export default function UserLikedPosts() {
   if (!allPosts.length) {
     return (
       <div className="text-center py-10 text-gray-500">
-        You haven&apos;t liked any post.
+        You haven&apos;t reposted any post. Try to repost
       </div>
     );
   }
-  console.log(allPosts[0].hasLiked);
 
   return (
     <div className="space-y-4">

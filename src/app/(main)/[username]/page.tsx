@@ -1,37 +1,91 @@
 "use client";
-import ProfileBar from "@/components/profile/ProfileBar";
-import ProfileMedia from "@/components/profile/ProfileMedia";
-import api from "@/lib/api/axios";
-import { UserType } from "@/types/user-type";
-import { useQuery } from "@tanstack/react-query";
+import { Post } from "@/types/post";
+import { useUniversalInfiniteQuery } from "@/lib/hooks/useUniversalInfiniteQuery";
+import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
+import { toast } from "sonner";
+import PostDetailLoader from "@/components/post/post-detail/PostDetailLoader";
+import PostCard from "@/components/post/view-post(s)/PostCard";
 import { useParams } from "next/navigation";
 
-const ProfilePage = () => {
-  const { username } = useParams();
-  //* Fetch user
+export default function UserPosts() {
+  //* 1. Use the Universal Hook
+  const { username } = useParams() as { username: string };
   const {
-    data: user,
+    data,
     isLoading,
     error,
     isError,
-  } = useQuery({
-    queryKey: ["user", username],
-    queryFn: async () => {
-      const response = await api.get(`users/${username}`);
-      return response.data as UserType;
-    },
-  });
-  if (isLoading) return <p>Loading....</p>;
-  if (isError) {
-    <p className="">Failed to fetch user {error.message}</p>;
-  }
-  if (!user) return <div>There is no user</div>;
-  return (
-    <>
-      <ProfileBar username={user.username} postCount={user.postCount} />
-      <ProfileMedia user={user} />
-    </>
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useUniversalInfiniteQuery<Post>(
+    ["posts", username], //* Unique key per feed type
+    `posts/user/${username}`,
+    20
   );
-};
 
-export default ProfilePage;
+  //* 2. Flatten the nested pages into a single array
+  const rawPosts = data?.pages.flatMap((page) => page.items) ?? [];
+
+  //* 3. Deduplicate by post ID
+  const allPosts = Array.from(
+    new Map(rawPosts.map((post) => [post.id, post])).values()
+  );
+  //* Handle Initial Loading State
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <PostDetailLoader key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  //* Handle Error State
+  if (isError) {
+    if (error.message === "AxiosError: Request failed with status code 429")
+      toast.error("Too many requests, Try again after one minute");
+    return (
+      <div className="text-center py-10">
+        <p className="text-red-500 mb-2">Failed to load posts</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="text-sky-500 hover:underline"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  //* Handle Empty State
+  if (!allPosts.length) {
+    return (
+      <div className="text-center py-10 text-gray-500">
+        You haven&apos;t posted any post.Try to create a new post
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/*//* 3. Render the flattened list */}
+      {allPosts.map((post) => (
+        <div
+          key={post.id}
+          className="cursor-pointer hover:opacity-95 transition-opacity"
+        >
+          <PostCard post={post} />
+        </div>
+      ))}
+
+      {/*//*  4. The Observable Trigger for Infinite Scroll */}
+      <InfiniteScrollTrigger
+        hasNextPage={hasNextPage}
+        fetchNextPage={fetchNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+      />
+    </div>
+  );
+}

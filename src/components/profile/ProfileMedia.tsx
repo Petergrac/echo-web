@@ -6,6 +6,7 @@ import { UserType } from "@/types/user-type";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Calendar } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { startTransition, useOptimistic, useState } from "react";
 
 const ProfileMedia = ({ user }: { user: UserType }) => {
@@ -24,7 +25,7 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
   //* 1.Optimistically update the UI
   const [optimisticFollowing, updateFollow] = useOptimistic(
     user.isFollowing,
-    (state, newState: boolean) => newState
+    (_, newState: boolean) => newState
   );
   //* 2.Fire real API and invalidate the user state
   const toggleFollow = useMutation({
@@ -58,10 +59,10 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
             src={prev.url}
             className={
               prev.type === "banner"
-                ? `aspect-video object-cover h-50 object-center w-full`
+                ? `object-scale-down  object-center w-full`
                 : "aspect-square rounded-full h-100 object-center object-cover"
             }
-            height={prev.type === "banner" ? 200 : 400}
+            height={prev.type === "banner" ? 600 : 400}
             width={prev.type === "banner" ? 600 : 400}
             alt="image-preview"
           />
@@ -140,14 +141,20 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
           </p>
         </div>
         <div className="flex text-gray-500 text-sm pt-2 items-center gap-4 justify-start">
-          <p className="">
+          <Link
+            href={`/${user.username}/following`}
+            className="hover:underline  underline-offset-3"
+          >
             <span className="text-white font-bold">{user.followingCount} </span>
             Following
-          </p>
-          <p className="">
+          </Link>
+          <Link
+            href={`/${user.username}/followers`}
+            className="hover:underline underline-offset-3"
+          >
             <span className="text-white font-bold">{user.followersCount} </span>
             Followers
-          </p>
+          </Link>
         </div>
       </div>
     </div>
