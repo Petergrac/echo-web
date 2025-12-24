@@ -19,6 +19,8 @@ type feedTypeType = "forYou" | "following";
 const TweetComposer = ({ feedType }: { feedType: feedTypeType }) => {
   const [tweetContent, setTweetContent] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const [visibilitySetting, setVisibilitySetting] =
     useState<VisibilitySetting>("public");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -26,19 +28,29 @@ const TweetComposer = ({ feedType }: { feedType: feedTypeType }) => {
 
   const postMutation = useMutation({
     mutationFn: async () => {
-      await api.post(
-        `posts/`,
-        {
-          content: tweetContent,
-          visibility: visibilitySetting,
-          media: files,
+      const formData = new FormData();
+      //* 1. Append text fields
+      formData.append("content", tweetContent);
+      formData.append("visibility", visibilitySetting);
+
+      //* 2. Append files individually under the SAME key 'media'
+      if (files) {
+        Array.from(files).forEach((file) => {
+          formData.append("media", file);
+        });
+      }
+      setIsUploading(true);
+      await api.post(`posts/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+        onUploadProgress: (progressEvent) => {
+          const progress = progressEvent.total
+            ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            : 0;
+          setUploadProgress(progress);
+        },
+      });
     },
     onSuccess: () => {
       setTweetContent("");
@@ -48,6 +60,10 @@ const TweetComposer = ({ feedType }: { feedType: feedTypeType }) => {
       toast.success("Tweet posted successfully!");
       setFiles(null);
       setVisibilitySetting("public");
+    },
+    onSettled: () => {
+      setIsUploading(false);
+      setUploadProgress(0);
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -97,7 +113,14 @@ const TweetComposer = ({ feedType }: { feedType: feedTypeType }) => {
       <div className="px-5 pt-5 flex items-start justify-start gap-2">
         {/* Avatar - Hidden on mobile */}
         <UserAvatar className="hidden md:block" />
-
+        {isUploading && (
+          <div className="absolute top-0 left-0 w-full h-1 bg-gray-100 z-50">
+            <div
+              className="h-full bg-sky-500 transition-all duration-300 ease-out"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        )}
         <div className="flex flex-col gap-5 w-full">
           {/*//* Textarea */}
           <AutoResizeTextarea

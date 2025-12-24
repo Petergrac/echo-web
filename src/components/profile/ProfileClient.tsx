@@ -17,7 +17,6 @@ export default function ProfileClient({ username, children }: Props) {
 
   if (isLoading) return <ProfileLoader />;
   const href = [`/${username}/followers`, `/${username}/following`];
-  console.log(pathName, href);
   if (isError && error)
     return (
       <div className="flex justify-start flex-col items-center">

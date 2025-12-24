@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { useAuthStore } from "@/lib/hooks/useStore";
+import LeftBarSkeleton from "../layout/LeftBarSkeleton";
+import PostDetailLoader from "../post/post-detail/PostDetailLoader";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchCurrentUser = useAuthStore((state) => state.fetchCurrentUser);
@@ -17,7 +19,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   //* 1.Show loading state while checking auth
   if (isLoading) {
-    return <></>;
+    return (
+      <div className="flex w-full justify-between">
+        <div className="hidden md:inline">
+          <LeftBarSkeleton />
+        </div>
+        <div className="flex flex-col w-150">
+          {[1, 2, 3, 4].map((i) => (
+            <PostDetailLoader key={i} />
+          ))}
+        </div>
+        <div className="hidden md:inline">
+          <LeftBarSkeleton />
+        </div>/
+      </div>
+    );
   }
 
   return <>{children}</>;

@@ -4,7 +4,7 @@ import { useUniversalInfiniteQuery } from "@/lib/hooks/useUniversalInfiniteQuery
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 import { toast } from "sonner";
 import PostDetailLoader from "@/components/post/post-detail/PostDetailLoader";
-import PostCard from "@/components/post/view-post(s)/PostCard";
+import PostCard from "@/components/post/feed/PostCard";
 import { useParams, useRouter } from "next/navigation";
 import { useCurrentUser } from "@/lib/hooks/useStore";
 import { useEffect } from "react";

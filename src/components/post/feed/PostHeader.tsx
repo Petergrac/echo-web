@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Globe, Users, Lock, MoreHorizontal } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import PostActions from "./PostAction";
 
 interface PostHeaderProps {
   post: Post;
@@ -65,10 +66,7 @@ export default function PostHeader({ post }: PostHeaderProps) {
           </div>
         </div>
       </Link>
-
-      <button className="p-1 text-gray-500 hover:text-gray-700 hover:bg-sky-500/50 rounded-full">
-        <MoreHorizontal className="w-5 h-5" />
-      </button>
+      <PostActions post={post} />
     </div>
   );
 }

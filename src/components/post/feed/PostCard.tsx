@@ -4,7 +4,7 @@ import { Post } from "@/types/post";
 import PostHeader from "./PostHeader";
 import PostContent from "./PostContent";
 import MediaGrid from "../post-media/MediaGrid";
-import PostActions from "./PostActions";
+import PostEngagements from "./PostEngagements";
 import EngagementBadge from "./EngagementBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
@@ -75,7 +75,7 @@ export default function PostCard({ post }: PostCardProps) {
 
         {/* Actions */}
         <div className="px-4 py-2">
-          <PostActions
+          <PostEngagements
             quote={quote}
             setQuote={setQuote}
             postId={post.id}

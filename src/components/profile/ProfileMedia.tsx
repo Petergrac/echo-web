@@ -8,6 +8,7 @@ import { Calendar } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { startTransition, useOptimistic, useState } from "react";
+import ProfileEdit from "./ProfileEdit";
 
 const ProfileMedia = ({ user }: { user: UserType }) => {
   const [showBio, setShowBio] = useState(false);
@@ -32,7 +33,7 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
     mutationFn: async () => {
       return await api.post(`/users/${user.username}/follow`);
     },
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user", user.username] });
     },
   });
@@ -43,7 +44,6 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
       toggleFollow.mutate();
     });
   };
-
   const isOwnProfile = currentUser?.username === user.username;
   return (
     <div className="mt-14 relative">
@@ -69,11 +69,11 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
         </div>
       )}
       <Image
-        src={user.avatar}
+        src={user.avatar ?? null}
         onClick={() => {
           setPreview(true);
           setPrev({
-            url: user.avatar,
+            url: user.avatar ?? null,
             type: "banner",
           });
         }}
@@ -83,11 +83,11 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
         height={200}
       />
       <Image
-        src={user.avatar}
+        src={user.avatar || "https://github.com/shadcn.png"}
         onClick={() => {
           setPreview(true);
           setPrev({
-            url: user.avatar,
+            url: user.avatar || "https://github.com/shadcn.png",
             type: "avatar",
           });
         }}
@@ -97,23 +97,29 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
         alt=""
       />
       <div className="w-full pr-5 flex justify-end">
-        <button
-          onClick={isOwnProfile ? undefined : handleFollow}
-          className={`${
-            !optimisticFollowing && !isOwnProfile
-              ? "bg-white text-black"
-              : optimisticFollowing
-              ? "ring ring-gray-400"
-              : "ring ring-sky-400"
-          } p-2 my-3 text-sm font-bold rounded-full transition hover:bg-sky-500 hover:text-black`}
-        >
-          {isOwnProfile
-            ? "Edit Profile"
-            : optimisticFollowing
-            ? "Unfollow"
-            : "Follow"}
-        </button>
+        {isOwnProfile ? (
+          <ProfileEdit
+            user={user}
+            trigger={
+              <button className="p-2 my-3 text-sm font-bold rounded-full transition ring ring-sky-400 hover:bg-sky-500/10">
+                Edit Profile
+              </button>
+            }
+          />
+        ) : (
+          <button
+            onClick={handleFollow}
+            className={`${
+              !optimisticFollowing
+                ? "bg-white text-black"
+                : "ring ring-gray-400 text-white"
+            } p-2 my-3 text-sm font-bold rounded-full transition hover:opacity-90`}
+          >
+            {optimisticFollowing ? "Unfollow" : "Follow"}
+          </button>
+        )}
       </div>
+
       <div className="flex flex-col pl-4 mt-5">
         <p className="font-bold text-2xl">{user.firstName}</p>
         <p className="text-gray-400 text-sm pb-1">@{user.username}</p>

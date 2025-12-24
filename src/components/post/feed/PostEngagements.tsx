@@ -29,7 +29,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
-interface PostActionsProps {
+interface PostEngagementsProps {
   postId: string;
   stats: {
     likeCount: number;
@@ -57,7 +57,7 @@ interface StatusState {
   hasReplied: boolean;
 }
 
-export default function PostActions({
+export default function PostEngagement({
   postId,
   stats,
   quote,
@@ -68,7 +68,7 @@ export default function PostActions({
     hasBookmarked: false,
     hasReplied: false,
   },
-}: PostActionsProps) {
+}: PostEngagementsProps) {
   const [counts, setCounts] = useState(stats);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -103,15 +103,17 @@ export default function PostActions({
       });
     },
     onSuccess: (_, variables) => {
-      //* Invalidate posts cache to refresh counts      
+      //* Invalidate posts cache to refresh counts
       queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
 
       const actionLabels = {
-        like: "Post liked",
-        bookmark: "Post bookmarked",
-        repost: "Post reposted",
+        like: initialStatus.hasLiked ? "Post disliked" : "Post liked",
+        bookmark: initialStatus.hasBookmarked
+          ? "Post unbookmarked"
+          : "Post bookmarked",
+        repost: initialStatus.hasReposted ? "Repost Deleted" : "Post reposted",
       };
       toast.success(actionLabels[variables.action]);
     },

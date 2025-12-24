@@ -4,7 +4,7 @@ import CommentSection from "@/components/post/post-detail/CommentSection";
 import PostDetailLoader from "@/components/post/post-detail/PostDetailLoader";
 import ReplyCompose from "@/components/post/post-detail/ReplyCompose";
 import ReplyLoader from "@/components/post/post-detail/ReplyLoader";
-import PostCard from "@/components/post/view-post(s)/PostCard";
+import PostCard from "@/components/post/feed/PostCard";
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 import api from "@/lib/api/axios";
 import { useUniversalInfiniteQuery } from "@/lib/hooks/useUniversalInfiniteQuery";
@@ -101,7 +101,7 @@ const SelectedPost = () => {
   return (
     <>
       <BackBar />
-      <div className="my-9"/>
+      <div className="my-9" />
       <PostCard post={postDetails} />
       <ReplyCompose
         value={value}

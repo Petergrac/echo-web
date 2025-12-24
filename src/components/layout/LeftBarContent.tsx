@@ -26,15 +26,18 @@ import { LogOut } from "lucide-react";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useAuthStore, useCurrentUser } from "@/lib/hooks/useStore";
 import api from "@/lib/api/axios";
+import { useState } from "react";
+import TweetComposerDialog from "../post/create-post/TweetComposerDialog";
 
 const LeftBar = () => {
   const router = useRouter();
+  const [showDialog, setShowDialog] = useState(false);
 
   const user = useCurrentUser();
-  const { logout, refreshUser } = useAuthStore();
+  const { logout } = useAuthStore();
 
   const navItems = [
-    { href: "/home", icon: Home, label: "Home" },
+    { href: "/feed", icon: Home, label: "Home" },
     { href: "/search", icon: Search, label: "Explore" },
     { href: "/notifications", icon: BellIcon, label: "Notifications" },
     { href: "/messages", icon: MessageSquareIcon, label: "Messages" },
@@ -51,13 +54,6 @@ const LeftBar = () => {
   return (
     <div className="max-w-[602px] h-screen flex flex-col justify-between sticky top-0 left-0 border-r border-border">
       <div className="flex flex-col pt-10 justify-between items-center md:items-start px-2 md:px-6 w-full">
-        <div
-          onClick={() => refreshUser()}
-          className="pl-3 hidden  gap-2 md:flex items-center justify-start"
-        >
-          <RefreshCcwIcon />
-          <p className="text-sm">Refresh User</p>
-        </div>
         {/* Navigation Items */}
         {navItems.map((item) => (
           <Link
@@ -101,11 +97,18 @@ const LeftBar = () => {
         </DropdownMenu>
 
         {/* Post Button */}
-        <button className="mt-6 flex items-center outline-6 justify-center gap-2 p-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-full">
-          <Feather className="w-6 h-6 md:hidden" />
-          <span className="hidden md:inline font-bold w-full">Post</span>
-          <span className="md:hidden sr-only">Post</span>
-        </button>
+        <TweetComposerDialog
+          trigger={
+            <button
+              onClick={() => setShowDialog(true)}
+              className="mt-6 flex items-center outline-6 justify-center gap-2 p-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-full"
+            >
+              <Feather className="w-6 h-6 md:hidden" />
+              <span className="hidden md:inline font-bold w-full">Post</span>
+              <span className="md:hidden sr-only">Post</span>
+            </button>
+          }
+        />
       </div>
 
       {/* User Profile Dropdown */}

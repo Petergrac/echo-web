@@ -2,7 +2,7 @@ import { Skeleton } from "../../ui/skeleton";
 
 const PostDetailLoader = () => {
   return (
-    <div className="pt-15 pl-5">
+    <div className="pl-5">
       <div className="flex items-center max-w-full justify-between">
         <Skeleton className="rounded-full w-20 h-20" />
         <Skeleton className="rounded-2xl w-20 h-10" />

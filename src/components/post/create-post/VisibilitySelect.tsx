@@ -25,8 +25,8 @@ const VisibilitySelect = ({ value, onChange }: ReplySettingsSelectProps) => {
         {value === "private" && <AtSignIcon size={15} />}
         <SelectValue>
           {value === "public" && "Everyone can view"}
-          {value === "followers" && "People you follow"}
-          {value === "private" && "No one can view"}
+          {value === "followers" && "People that follow you"}
+          {value === "private" && "Only you can view this post"}
         </SelectValue>
       </SelectTrigger>
       <SelectContent className="bg-black w-72 glow">
@@ -40,7 +40,7 @@ const VisibilitySelect = ({ value, onChange }: ReplySettingsSelectProps) => {
             </p>
           </div>
         </SelectItem>
-        <SelectItem value="everyone">
+        <SelectItem value="public">
           <div className="flex gap-3 items-center">
             <div className="bg-sky-500 rounded-full p-2">
               <EarthIcon className="text-white" size={18} />
@@ -51,7 +51,7 @@ const VisibilitySelect = ({ value, onChange }: ReplySettingsSelectProps) => {
             </div>
           </div>
         </SelectItem>
-        <SelectItem value="following">
+        <SelectItem value="followers">
           <div className="flex gap-3 items-center">
             <div className="bg-sky-500 rounded-full p-2">
               <User2 className="text-white" size={18} />
@@ -64,7 +64,7 @@ const VisibilitySelect = ({ value, onChange }: ReplySettingsSelectProps) => {
             </div>
           </div>
         </SelectItem>
-        <SelectItem value="mentioned">
+        <SelectItem value="private">
           <div className="flex gap-3 items-center">
             <div className="bg-sky-500 rounded-full p-2">
               <AtSignIcon className="text-white" size={18} />

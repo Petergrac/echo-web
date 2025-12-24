@@ -2,7 +2,7 @@
 import { useState } from "react";
 import TopBar from "@/components/layout/TopBar";
 import TweetComposer from "@/components/post/create-post/TweetComposer";
-import PostsList from "@/components/post/view-post(s)/PostList";
+import PostsList from "@/components/post/feed/PostList";
 
 const Feed = () => {
   const [feedType, setFeedType] = useState<"forYou" | "following">("forYou");
