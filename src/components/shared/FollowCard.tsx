@@ -8,21 +8,70 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { UserType } from "@/types/user-type";
+import api from "@/lib/api/axios";
+import { FollowType } from "@/types/user-type";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { startTransition, useOptimistic } from "react";
+import { toast } from "sonner";
+
+export interface followState {
+  viewerFollows: boolean;
+  followsViewer: boolean;
+}
 
 export default function FollowDropDown({
   user,
   followType,
 }: {
-  user: UserType;
+  user: FollowType;
   followType: "followers" | "following";
 }) {
   const router = useRouter();
+  const { username } = useParams() as { username: string };
+  const queryClient = useQueryClient();
+  //* Mutate follow
+  const mutation = useMutation({
+    mutationFn: async () => {
+      return await api.post(`users/${user.username}/follow`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["user", username],
+      });
+      toast.success(
+        user.viewerFollows
+          ? `Unfollowed ${user.username}`
+          : `Followed ${user.username}`
+      );
+    },
+    onError: () => {
+      toast.error("Action failed");
+    },
+  });
+  //* Update UI optimistically
+  const [followOptimistic, toggleFollow] = useOptimistic(
+    {
+      viewerFollows: user.viewerFollows,
+      followsViewer: user.followsViewer,
+    },
+    (state, newState: followState) => ({ ...state, ...newState })
+  );
+  //* Toggle follow & UI update
+  const handleFollow = () => {
+    const newState = {
+      viewerFollows: !followOptimistic.viewerFollows,
+      followsViewer: followOptimistic.followsViewer,
+    };
+    startTransition(() => {
+      toggleFollow(newState);
+      mutation.mutate();
+    });
+  };
   return (
-    <Card className="w-full max-w-sm absolute glow">
+    <Card className="w-full max-w-sm z-50 absolute glow">
       <CardHeader>
         <CardTitle>
           <Image
@@ -36,16 +85,28 @@ export default function FollowDropDown({
         </CardTitle>
         <CardAction>
           <Button
-            variant="outline"
-            className={`rounded-full font-bold hover:${
-              user.isFollowing ? "bg-white" : ""
+            onClick={handleFollow}
+            className={`rounded-full font-bold transition ${
+              followType === "followers"
+                ? followOptimistic.viewerFollows
+                  ? "hover:bg-red-600 bg-black text-white border hover:text-white hover:border-red-600"
+                  : followOptimistic.followsViewer
+                  ? "bg-sky-500 text-white hover:bg-sky-600"
+                  : "hover:bg-gray-200"
+                : followOptimistic.viewerFollows
+                ? "hover:bg-red-600 hover:text-white hover:border-red-600"
+                : "hover:bg-gray-200"
             }`}
           >
-            {user.isFollowing
+            {followType === "followers"
+              ? followOptimistic.viewerFollows
+                ? "Unfollow"
+                : followOptimistic.followsViewer
+                ? "Follow Back"
+                : "Follow"
+              : followOptimistic.viewerFollows
               ? "Unfollow"
-              : followType === "followers"
-              ? "Follow Back"
-              : "Unfollow"}
+              : "Follow"}
           </Button>
         </CardAction>
       </CardHeader>

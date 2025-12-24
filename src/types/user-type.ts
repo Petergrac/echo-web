@@ -15,3 +15,9 @@ export interface UserType {
   postCount: number;
   isFollowing: boolean;
 }
+
+export interface FollowType extends UserType {
+  viewerFollows: boolean;
+  followsViewer: boolean;
+  isMutual: boolean;
+}

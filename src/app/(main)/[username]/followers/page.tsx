@@ -5,7 +5,7 @@ import FollowTabs from "@/components/shared/FollowTab";
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 import api from "@/lib/api/axios";
 import { useUniversalInfiniteQuery } from "@/lib/hooks/useUniversalInfiniteQuery";
-import { UserType } from "@/types/user-type";
+import { FollowType, UserType } from "@/types/user-type";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 
@@ -30,7 +30,7 @@ const UserFollowers = () => {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useUniversalInfiniteQuery<UserType>(
+  } = useUniversalInfiniteQuery<FollowType>(
     ["user", username, "followers"],
     `users/${username}/followers`,
     15
