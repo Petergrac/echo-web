@@ -10,7 +10,6 @@ import {
 import {
   MoreHorizontal,
   Trash2,
-  Pencil,
   VolumeX,
   UserMinus,
   Flag,
@@ -66,11 +65,6 @@ export default function PostActions({ post }: PostActionsProps) {
             >
               <Trash2 className="w-4 h-4" />
               Delete
-            </DropdownMenuItem>
-
-            <DropdownMenuItem className="gap-3 cursor-pointer">
-              <Pencil className="w-4 h-4" />
-              Edit
             </DropdownMenuItem>
           </>
         ) : (

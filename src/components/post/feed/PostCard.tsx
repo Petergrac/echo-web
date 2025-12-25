@@ -65,7 +65,9 @@ export default function PostCard({ post }: PostCardProps) {
             }
           >
             {quote && <PostHeader post={post} />}
-            <PostContent content={post.content} id={post.id} />
+            {post.content && (
+              <PostContent content={post.content} id={post.id} />
+            )}
             {/* Media Grid */}
             {post.media && post.media.length > 0 && (
               <MediaGrid media={post.media} />

@@ -10,8 +10,8 @@ import { useCurrentUser } from "@/lib/hooks/useStore";
 import { useEffect } from "react";
 
 export default function UserRePosts() {
-  //* 1. Use the Universal Hook
 
+  //* 1. Use the Universal Hook
   const { username } = useParams() as { username: string };
   const router = useRouter();
   const user = useCurrentUser();
@@ -37,11 +37,11 @@ export default function UserRePosts() {
 
   //* 2. Flatten the nested pages into a single array
   const rawPosts = data?.pages.flatMap((page) => page.items) ?? [];
-
   //* 3. Deduplicate by post ID
   const allPosts = Array.from(
     new Map(rawPosts.map((post) => [post.id, post])).values()
   );
+
   //* Handle Initial Loading State
   if (isLoading) {
     return (
@@ -52,7 +52,6 @@ export default function UserRePosts() {
       </div>
     );
   }
-
   //* Handle Error State
   if (isError) {
     if (error.message === "AxiosError: Request failed with status code 429")
@@ -78,7 +77,6 @@ export default function UserRePosts() {
       </div>
     );
   }
-
   return (
     <div className="space-y-4">
       {/*//* 3. Render the flattened list */}

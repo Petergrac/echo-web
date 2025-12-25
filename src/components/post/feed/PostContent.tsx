@@ -16,7 +16,7 @@ export default function PostContent({
 }: PostContentProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const shouldTruncate = content.length > maxLength;
+  const shouldTruncate = content && content.length > maxLength;
   const displayContent =
     expanded || !shouldTruncate ? content : `${content.slice(0, maxLength)}...`;
 
