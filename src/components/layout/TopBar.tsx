@@ -1,7 +1,7 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useSidebar } from "../ui/sidebar";
-import { useCurrentUser } from "@/lib/hooks/useStore";
+import { useCurrentUser } from "@/lib/stores/useStore";
 import clsx from "clsx";
 
 interface TopBarProps {

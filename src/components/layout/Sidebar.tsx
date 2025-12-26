@@ -10,7 +10,7 @@ import {
   Settings,
   User,
 } from "lucide-react";
-import { useAuthActions, useCurrentUser } from "@/lib/hooks/useStore";
+import { useAuthActions, useCurrentUser } from "@/lib/stores/useStore";
 import api from "@/lib/api/axios";
 import { useRouter } from "next/navigation";
 

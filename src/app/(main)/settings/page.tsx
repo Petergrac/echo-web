@@ -2,6 +2,7 @@
 
 import NotificationPreferences from "@/components/notifications/NotificationPreferences";
 import NotificationPreferencesSummary from "@/components/notifications/NotificationPreferencesSummary";
+import BackBar from "@/components/post/post-detail/Back-Bar";
 import api from "@/lib/api/axios";
 import { NotPrefDto } from "@/types/notification";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -45,12 +46,12 @@ export default function SettingsPage() {
   };
   return (
     <>
-      <NotificationPreferences
-        initialData={data}
-        onSave={handleSave}
-      />
-
-      <NotificationPreferencesSummary preferences={data!} />
+      <BackBar type="Notifications" />
+      <div className="pt-15"/>
+      <NotificationPreferences initialData={data} onSave={handleSave} />
+      <div className="px-4 pb-5">
+        <NotificationPreferencesSummary preferences={data!} />
+      </div>
     </>
   );
 }

@@ -11,6 +11,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import QueryProvider from "@/components/providers/QueryProvider";
+import { WebSocketInitializer } from "@/components/websocket/WebsocketInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,12 +47,13 @@ export default function RootLayout({
         >
           <AuthProvider>
             <QueryProvider>
+              <WebSocketInitializer />
               <SidebarProvider>
                 <div className="sm:hidden">
                   <Sidebar />
                 </div>
                 <div className="hidden sm:block">
-                  <LeftBar /> 
+                  <LeftBar />
                 </div>
 
                 <main className="w-full sm:min-w-150 h-screen overflow-y-auto">

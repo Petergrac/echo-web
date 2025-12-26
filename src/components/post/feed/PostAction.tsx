@@ -7,15 +7,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
-  Trash2,
-  VolumeX,
-  UserMinus,
-  Flag,
-} from "lucide-react";
+import { MoreHorizontal, Trash2, VolumeX, UserMinus, Flag } from "lucide-react";
 import { Post } from "@/types/post";
-import { useCurrentUser } from "@/lib/hooks/useStore";
+import { useCurrentUser } from "@/lib/stores/useStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api/axios";
 import { toast } from "sonner";

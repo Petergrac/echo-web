@@ -24,10 +24,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { useAuthStore, useCurrentUser } from "@/lib/hooks/useStore";
+import { useAuthStore, useCurrentUser } from "@/lib/stores/useStore";
 import api from "@/lib/api/axios";
 import { useState } from "react";
 import TweetComposerDialog from "../post/create-post/TweetComposerDialog";
+import { NotificationBell } from "../notifications/NotificationBell";
 
 const LeftBar = () => {
   const router = useRouter();
@@ -66,7 +67,7 @@ const LeftBar = () => {
             <span className="md:hidden sr-only">{item.label}</span>
           </Link>
         ))}
-
+        <NotificationBell />
         {/* More Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-3 p-3 rounded-full hover:bg-accent transition-colors w-fit outline-none">

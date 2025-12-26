@@ -100,7 +100,7 @@ const SelectedPost = () => {
     );
   return (
     <>
-      <BackBar />
+      <BackBar type="Post" />
       <div className="my-9" />
       <PostCard post={postDetails} />
       <ReplyCompose

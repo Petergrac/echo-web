@@ -1,6 +1,6 @@
 "use client";
 
-import { useCurrentUser } from "@/lib/hooks/useStore";
+import { useCurrentUser } from "@/lib/stores/useStore";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

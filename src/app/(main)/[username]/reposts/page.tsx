@@ -6,11 +6,10 @@ import { toast } from "sonner";
 import PostDetailLoader from "@/components/post/post-detail/PostDetailLoader";
 import PostCard from "@/components/post/feed/PostCard";
 import { useParams, useRouter } from "next/navigation";
-import { useCurrentUser } from "@/lib/hooks/useStore";
+import { useCurrentUser } from "@/lib/stores/useStore";
 import { useEffect } from "react";
 
 export default function UserRePosts() {
-
   //* 1. Use the Universal Hook
   const { username } = useParams() as { username: string };
   const router = useRouter();

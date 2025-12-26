@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api/axios";
 import { useRouter } from "next/navigation";
-import { useAuthActions } from "@/lib/hooks/useStore";
+import { useAuthActions } from "@/lib/stores/useStore";
 
 interface EditProfileDialogProps {
   trigger: React.ReactNode;

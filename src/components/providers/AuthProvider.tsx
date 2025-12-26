@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuthStore } from "@/lib/hooks/useStore";
+import { useAuthStore } from "@/lib/stores/useStore";
 import LeftBarSkeleton from "../layout/LeftBarSkeleton";
 import PostDetailLoader from "../post/post-detail/PostDetailLoader";
 
@@ -31,7 +31,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         </div>
         <div className="hidden md:inline">
           <LeftBarSkeleton />
-        </div>/
+        </div>
+        /
       </div>
     );
   }
