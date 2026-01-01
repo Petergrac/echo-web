@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuthStore } from "@/lib/stores/useStore";
+import { useAuthStore } from "@/stores/useStore";
 import LeftBarSkeleton from "../layout/LeftBarSkeleton";
 import PostDetailLoader from "../post/post-detail/PostDetailLoader";
 

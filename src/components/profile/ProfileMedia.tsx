@@ -1,7 +1,7 @@
 "use client";
 
 import api from "@/lib/api/axios";
-import { useCurrentUser } from "@/lib/stores/useStore";
+import { useCurrentUser } from "@/stores/useStore";
 import { UserType } from "@/types/user-type";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Calendar } from "lucide-react";

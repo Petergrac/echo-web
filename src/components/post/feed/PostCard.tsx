@@ -8,7 +8,7 @@ import PostEngagements from "./PostEngagements";
 import EngagementBadge from "./EngagementBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
-import { useCurrentUser } from "@/lib/stores/useStore";
+import { useCurrentUser } from "@/stores/useStore";
 import UserAvatar from "@/components/profile/UserAvatar";
 import { formatDistanceToNow } from "date-fns";
 

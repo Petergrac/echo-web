@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import ReplyCompose from "./ReplyCompose";
 import { Edit2, MoreVertical, Trash2 } from "lucide-react";
-import { useCurrentUser } from "@/lib/stores/useStore";
+import { useCurrentUser } from "@/stores/useStore";
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useWebSocketStore } from "../stores/websocket-store";
+import { useWebSocketStore } from "../../stores/websocket-store";
 
 export const useWebSocket = () => {
   const {

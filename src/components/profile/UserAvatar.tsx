@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useCurrentUser } from "@/lib/stores/useStore";
+import { useCurrentUser } from "@/stores/useStore";
 
 interface UserAvatarProps {
   className?: string;

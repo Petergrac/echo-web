@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Sidebar, SidebarMenu, SidebarMenuItem } from "../ui/sidebar";
 import {
+  BellIcon,
   Bookmark,
   LogOut,
   MessageCircle,
@@ -10,13 +11,16 @@ import {
   Settings,
   User,
 } from "lucide-react";
-import { useAuthActions, useCurrentUser } from "@/lib/stores/useStore";
+import { useAuthActions, useCurrentUser } from "@/stores/useStore";
 import api from "@/lib/api/axios";
 import { useRouter } from "next/navigation";
+import { useUnreadCount } from "@/lib/hooks/useNotifications";
+import { useWebSocketStore } from "@/stores/websocket-store";
 
 const AppSideBar = () => {
   const router = useRouter();
   const user = useCurrentUser();
+  const { count } = useUnreadCount();
   const { logout, refreshUser } = useAuthActions();
   async function handleLogout() {
     logout();
@@ -45,12 +49,19 @@ const AppSideBar = () => {
       name: "Bookmarks",
     },
     {
+      url: "/notifications",
+      icon: BellIcon,
+      index: 5,
+      name: "Notifications",
+    },
+    {
       url: "/settings",
       icon: Settings,
       index: 4,
       name: "Settings",
     },
   ];
+  const { isConnected } = useWebSocketStore();
   return (
     <Sidebar>
       <SidebarMenu className="pl-5 pt-5 bg-black h-full outline-none border-none">
@@ -87,13 +98,27 @@ const AppSideBar = () => {
             <RefreshCwIcon />
             <p className="text-sky-500 text-sm">Refresh Details</p>
           </div>
-          <div className="pt-2">
+          {isConnected ? (
+            <p className="text-center py-3 items-center  flex gap-4">
+              🔵 <span className="text-sm">Online</span>
+            </p>
+          ) : (
+            <p className="text-center py-3 items-center  flex gap-4">
+              🔴 <span className="text-xs">Offline</span>
+            </p>
+          )}
+          <div className="">
             {links.map((l) => (
               <Link
                 href={l.url}
-                className="py-3 pt-5 flex justify-start gap-3 items-center"
+                className="pb-3 relative flex justify-start gap-3 items-center"
                 key={l.index}
               >
+                {l.url === "/notifications" && (
+                  <p className="absolute  top-[3px] -left-px flex justify-center text-sm rounded-full bg-sky-500 w-5">
+                    {count}
+                  </p>
+                )}
                 <l.icon />
                 <p className="font-bold text-sm">{l.name}</p>
               </Link>

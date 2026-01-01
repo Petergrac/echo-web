@@ -33,3 +33,44 @@ export interface NotPrefDto {
   mutedUsers: string[];
   mutedKeywords: string[];
 }
+
+export type NotificationType =
+  | "LIKE"
+  | "REPLY"
+  | "REPOST"
+  | "FOLLOW"
+  | "MENTION"
+  | "SYSTEM";
+
+export interface NotificationActor {
+  id: string;
+  username: string;
+  firstName: string;
+  avatar: string;
+}
+
+export interface Notification {
+  id: string;
+  createdAt: string;
+  type: NotificationType;
+  actor: NotificationActor;
+  postId?: string;
+  replyId?: string;
+  read: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
+
+export interface UnreadCountResponse {
+  count: number;
+}

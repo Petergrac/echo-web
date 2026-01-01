@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useWebSocketStore } from "@/lib/stores/websocket-store";
+import { useWebSocketStore } from "@/stores/websocket-store";
 
 export function WebSocketInitializer() {
   const initializeSocket = useWebSocketStore((state) => state.initializeSocket);
@@ -9,8 +9,6 @@ export function WebSocketInitializer() {
   useEffect(() => {
     //* Initialize WebSocket when component mounts
     initializeSocket();
-    
-    //* Optional: Request notification permission
     if (typeof window !== "undefined" && "Notification" in window) {
       if (Notification.permission === "default") {
         Notification.requestPermission();
