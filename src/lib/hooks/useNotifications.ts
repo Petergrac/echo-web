@@ -4,6 +4,7 @@ import { useWebSocketStore } from "@/stores/websocket-store";
 import { Notification, UnreadCountResponse } from "@/types/notification";
 import { useUniversalInfiniteQuery } from "./useUniversalInfiniteQuery";
 import { toast } from "sonner";
+import api from "../api/axios";
 
 const NOTIFICATIONS_QUERY_KEY = "notifications";
 const UNREAD_COUNT_QUERY_KEY = "unreadCount";
@@ -129,5 +130,33 @@ export function useDeleteNotification() {
     onError: () => {
       toast.error("Failed to delete notification");
     },
+  });
+}
+
+export function useFollowToggle() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (targetName: string) => {
+      await api.post(`/users/${targetName}/follow`);
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["posts"],
+      }),
+  });
+}
+export function useMuteToggle() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ userId, mute }: { userId: string; mute: boolean }) => {
+      await api.post(`/notifications/preferences/mute-user`, {
+        userId,
+        mute,
+      });
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["user-preferences"],
+      }),
   });
 }

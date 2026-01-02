@@ -4,12 +4,15 @@ import NotificationPreferences from "@/components/notifications/NotificationPref
 import NotificationPreferencesSummary from "@/components/notifications/NotificationPreferencesSummary";
 import BackBar from "@/components/post/post-detail/Back-Bar";
 import api from "@/lib/api/axios";
+import { useUniversalStore } from "@/stores/universalStore";
 import { NotPrefDto } from "@/types/notification";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
   const queryClient = useQueryClient();
+  const { setMutedUsers } = useUniversalStore();
   const { data, isLoading, isError } = useQuery<NotPrefDto>({
     queryKey: ["user-preferences"],
     queryFn: async () => {
@@ -31,6 +34,11 @@ export default function SettingsPage() {
       toast.error("Failed to save preferences. Changes reverted.");
     },
   });
+  useEffect(() => {
+    if (data?.mutedUsers) {
+      setMutedUsers(data.mutedUsers);
+    }
+  }, [data?.mutedUsers, setMutedUsers]);
   if (isLoading) return null;
   if (isError)
     return (
@@ -47,7 +55,7 @@ export default function SettingsPage() {
   return (
     <>
       <BackBar type="Notifications" />
-      <div className="pt-15"/>
+      <div className="pt-15" />
       <NotificationPreferences initialData={data} onSave={handleSave} />
       <div className="px-4 pb-5">
         <NotificationPreferencesSummary preferences={data!} />

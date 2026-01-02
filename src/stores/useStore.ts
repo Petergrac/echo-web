@@ -197,3 +197,4 @@ export const useAuthActions = () => {
 };
 export const useUserFullName = () =>
   useAuthStore((state) => state.getFullName());
+

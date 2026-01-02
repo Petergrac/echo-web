@@ -13,6 +13,8 @@ import { useCurrentUser } from "@/stores/useStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api/axios";
 import { toast } from "sonner";
+import { useFollowToggle, useMuteToggle } from "@/lib/hooks/useNotifications";
+import { useState } from "react";
 
 interface PostActionsProps {
   post: Post;
@@ -21,6 +23,11 @@ interface PostActionsProps {
 export default function PostActions({ post }: PostActionsProps) {
   const currentUser = useCurrentUser();
   const queryClient = useQueryClient();
+  const followMutation = useFollowToggle();
+  const muteMutation = useMuteToggle();
+  const [followStatus, setFollowStatus] = useState(post.isFollowingAuthor);
+  const [muteStatus, setMuteStatus] = useState(post.isMuted);
+  //* Handle Post Delete
   const deleteMutation = useMutation({
     mutationFn: async () => {
       return await api.delete(`posts/${post.id}`);
@@ -41,6 +48,25 @@ export default function PostActions({ post }: PostActionsProps) {
     deleteMutation.mutate();
   };
 
+  //* Handle Follow Toggle
+  const handleFollow = () => {
+    setFollowStatus(!followStatus);
+    followMutation.mutate(post.author!.username);
+    const isError = followMutation.isError;
+    if (isError) {
+      setFollowStatus(!followStatus);
+      toast.error("Failed to change the follow state");
+    }
+  };
+  //* Handle Mute user Toggle
+  const handleMute = () => {
+    setMuteStatus(!muteStatus);
+    muteMutation.mutateAsync({ mute: !post.isMuted, userId: post.author!.id });
+    if (muteMutation.isError) {
+      setMuteStatus(!muteStatus);
+      toast.error("Failed to mute the user");
+    }
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -64,14 +90,28 @@ export default function PostActions({ post }: PostActionsProps) {
         ) : (
           <>
             {/* VISITOR ACTIONS */}
-            <DropdownMenuItem className="gap-3 cursor-pointer">
-              <UserMinus className="w-4 h-4" />
-              Unfollow @{post.author.username}
+            <DropdownMenuItem
+              onClick={handleFollow}
+              className={`${
+                followStatus && "text-red-500"
+              } gap-3 cursor-pointer`}
+            >
+              <UserMinus
+                className={followStatus ? `text-red-500 w-4 h-4` : "w-4 h-4"}
+              />
+              {followStatus ? "Unfollow" : "Follow"} @{post.author.username}
             </DropdownMenuItem>
 
-            <DropdownMenuItem className="gap-3 cursor-pointer">
-              <VolumeX className="w-4 h-4" />
-              Mute @{post.author.username}
+            <DropdownMenuItem
+              onClick={handleMute}
+              className={`${
+                !muteStatus && "text-red-500"
+              } gap-3 cursor-pointer`}
+            >
+              <VolumeX
+                className={muteStatus ? `w-4 h-4` : "text-red-500 w-4 h-4"}
+              />
+              {muteStatus ? "Unmute" : "Mute"} @{post.author.username}
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />

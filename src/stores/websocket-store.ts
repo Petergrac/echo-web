@@ -19,7 +19,7 @@ export interface WebSocketState {
   markAsRead: (notificationId: string) => void;
   markAllAsRead: () => void;
   getOnlineStatus: (userIds: string[]) => void;
-  getPreferences: () => Promise<unknown>;
+  getMutedUsers: () => Promise<unknown>;
   resetPreferences: () => Promise<unknown>;
   checkPermission: (type: string) => Promise<boolean>;
   removeNotification: (notificationId: string) => void;
@@ -175,7 +175,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     }
   },
 
-  getPreferences: () => {
+  getMutedUsers: () => {
     return new Promise((resolve, reject) => {
       const { socket } = get();
       if (!socket?.connected) {
@@ -183,7 +183,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         return;
       }
 
-      socket.emit("get_my_preferences", (response: unknown) => {
+      socket.emit("get_muted_users", (response: unknown) => {
         if (response && typeof response === "object" && "error" in response) {
           reject(new Error((response as { error: string }).error));
         } else {

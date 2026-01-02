@@ -4,6 +4,7 @@ export interface Media {
   resourceType: string;
 }
 export interface Post {
+  isMuted: boolean;
   id: string;
   content: string;
   visibility: string;
@@ -19,6 +20,7 @@ export interface Post {
   hasBookmarked: boolean;
   repostContent: string | null;
   hasReplied?: boolean;
+  isFollowingAuthor: boolean;
   author?: {
     id: string;
     username: string;

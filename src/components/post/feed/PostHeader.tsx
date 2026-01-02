@@ -2,7 +2,7 @@
 
 import { Post } from "@/types/post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Globe, Users, Lock, MoreHorizontal } from "lucide-react";
+import { Globe, Users, Lock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import PostActions from "./PostAction";
@@ -32,7 +32,6 @@ export default function PostHeader({ post }: PostHeaderProps) {
     }
   };
   if (!post.author) return;
-
   return (
     <div className="flex items-start justify-between z-0">
       <Link

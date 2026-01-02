@@ -5,6 +5,7 @@ import PostDetailLoader from "../post-detail/PostDetailLoader";
 import { useUniversalInfiniteQuery } from "@/lib/hooks/useUniversalInfiniteQuery";
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 import { toast } from "sonner";
+import { useUniversalStore } from "@/stores/universalStore";
 
 type FeedType = "forYou" | "following";
 
@@ -13,6 +14,7 @@ interface PostsListProps {
 }
 
 export default function PostsList({ feedType }: PostsListProps) {
+  const { mutedUsers } = useUniversalStore();
   const endpoint =
     feedType === "forYou" ? "/posts/feed/for-you" : "/posts/feed/following";
 
@@ -75,11 +77,15 @@ export default function PostsList({ feedType }: PostsListProps) {
       </div>
     );
   }
+  const postWithStatus = allPosts.map((post) => ({
+    ...post,
+    isMuted: mutedUsers.includes(post.author!.id),
+  }));
 
   return (
     <div className="space-y-4">
       {/*//* 3. Render the flattened list */}
-      {allPosts.map((post) => (
+      {postWithStatus.map((post) => (
         <div
           key={post.id}
           className="cursor-pointer hover:opacity-95 transition-opacity"

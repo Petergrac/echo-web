@@ -34,7 +34,6 @@ export default function NotificationPreferencesSummary({
     preferences.pushMentions,
     preferences.pushSystem,
   ].filter(Boolean).length;
-  console.log(preferences.mutedUsers);
   return (
     <Card>
       <CardHeader>
