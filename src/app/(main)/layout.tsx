@@ -56,7 +56,7 @@ export default function RootLayout({
                   <LeftBar />
                 </div>
 
-                <main className="w-full sm:min-w-150 h-screen overflow-y-auto">
+                <main className="w-full sm:w-150 h-screen overflow-y-auto">
                   {children}
                 </main>
                 <RightBar />

@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../ui/dialog";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -83,6 +83,7 @@ export default function PostEngagement({
       [action.type]: action.value,
     })
   );
+  const pathName = usePathname();
   const formatCount = (count: number): string => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
@@ -107,7 +108,11 @@ export default function PostEngagement({
       queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
-
+      if (pathName === "/bookmarks") {
+        queryClient.invalidateQueries({
+          queryKey: ["bookmarks"],
+        });
+      }
       const actionLabels = {
         like: initialStatus.hasLiked ? "Post disliked" : "Post liked",
         bookmark: initialStatus.hasBookmarked
