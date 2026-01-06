@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useProfile } from "@/lib/hooks/user-profile";
+import { useProfile } from "@/lib/hooks/useGeneralHook";
 import Profile from "./Profile";
 import ProfileLoader from "./ProfileLoader";
 import { usePathname } from "next/navigation";
