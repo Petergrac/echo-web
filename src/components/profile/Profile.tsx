@@ -5,7 +5,11 @@ import { UserType } from "@/types/user-type";
 const Profile = ({ user }: { user: UserType }) => {
   return (
     <>
-      <ProfileBar username={user.username} postCount={user.postCount} />
+      <ProfileBar
+        username={user.username}
+        postCount={user.postCount}
+        firstName={user.firstName + " " + user.lastName}
+      />
       <ProfileMedia user={user} />
       <ProfileTab username={user.username} />
     </>

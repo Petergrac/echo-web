@@ -45,6 +45,8 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
     });
   };
   const isOwnProfile = currentUser?.username === user.username;
+  const cloudinaryDefaultImage =
+    "https://res.cloudinary.com/dlerdxdji/image/upload/f_auto,q_auto/v1762262269/cld-sample.jpg";
   return (
     <div className="mt-14 relative">
       {preview && prev.url && (
@@ -69,7 +71,7 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
         </div>
       )}
       <Image
-        src={user.avatar ?? null}
+        src={user.avatar ?? cloudinaryDefaultImage}
         onClick={() => {
           setPreview(true);
           setPrev({
@@ -83,11 +85,11 @@ const ProfileMedia = ({ user }: { user: UserType }) => {
         height={200}
       />
       <Image
-        src={user.avatar || "https://github.com/shadcn.png"}
+        src={user.avatar ?? cloudinaryDefaultImage}
         onClick={() => {
           setPreview(true);
           setPrev({
-            url: user.avatar || "https://github.com/shadcn.png",
+            url: user.avatar ?? cloudinaryDefaultImage,
             type: "avatar",
           });
         }}

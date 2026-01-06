@@ -8,6 +8,7 @@ import {
   LogOut,
   MessageCircle,
   RefreshCwIcon,
+  Search,
   Settings,
   User,
 } from "lucide-react";
@@ -35,6 +36,12 @@ const AppSideBar = () => {
       icon: MessageCircle,
       index: 1,
       name: "Chat",
+    },
+    {
+      url: "/explore",
+      icon: Search,
+      index: 56,
+      name: "Explore",
     },
     {
       url: `/${user?.username}`,

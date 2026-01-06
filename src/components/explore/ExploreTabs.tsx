@@ -26,7 +26,7 @@ const ExploreTabs = ({
     },
   ];
   return (
-    <div className="flex w-full justify-around">
+    <div className="flex mb-4 w-full justify-around">
       {tabs.map((tab) => (
         <button
           onClick={() => {
@@ -36,7 +36,7 @@ const ExploreTabs = ({
           className={`${
             tab.value === activeTab &&
             "border-b-5 border-sky-500 bg-gray-800/20"
-          } px-10 pt-5`}
+          } sm:px-10 pt-5`}
           key={tab.value}
         >
           {tab.name}

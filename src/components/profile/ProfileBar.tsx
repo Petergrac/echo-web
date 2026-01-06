@@ -16,10 +16,14 @@ const ProfileBar = ({
       <Link href={`/feed`} className="flex items-center gap-5">
         <ArrowLeft />
         <div className="flex flex-col items-start">
-          {firstName && <p className="font-bold text-lg">{firstName}</p>}
-          {postCount && (
-            <p className="text-gray-400 text-sm">{postCount} posts</p>
-          )}
+          <p
+            className={`${
+              firstName ? "font-bold" : "italic text-red-400"
+            } text-lg`}
+          >
+            {firstName ?? "Anonymous"}
+          </p>
+          <p className="text-gray-400 text-sm">{postCount ?? 0} posts</p>
           <p className="text-gray-400 text-sm">@{username}</p>
         </div>
       </Link>

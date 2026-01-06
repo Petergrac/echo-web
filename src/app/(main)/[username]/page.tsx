@@ -6,10 +6,13 @@ import { toast } from "sonner";
 import PostDetailLoader from "@/components/post/post-detail/PostDetailLoader";
 import PostCard from "@/components/post/feed/PostCard";
 import { useParams } from "next/navigation";
+import { useCurrentUser } from "@/stores/useStore";
 
 export default function UserPosts() {
+  const user = useCurrentUser();
   //* 1. Use the Universal Hook
   const { username } = useParams() as { username: string };
+  const isCurrentUser = user?.username === username;
   const {
     data,
     isLoading,
@@ -63,7 +66,9 @@ export default function UserPosts() {
   if (!allPosts.length) {
     return (
       <div className="text-center py-10 text-gray-500">
-        You haven&apos;t posted any post.Try to create a new post
+        {isCurrentUser
+          ? "You haven't posted anything yet"
+          : `${username} hasn't posted anything yet`}
       </div>
     );
   }

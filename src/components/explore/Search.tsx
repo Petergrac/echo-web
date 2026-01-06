@@ -62,7 +62,8 @@ const TwitterSearch = () => {
   };
 
   return (
-    <div className="relative w-full max-w-[600px]">
+    <div className="relative w-full  max-w-[600px]">
+      
       <div className="relative flex items-center">
         <Search
           className={cn(

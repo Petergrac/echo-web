@@ -45,18 +45,24 @@ export default function PostHeader({ post }: PostHeaderProps) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
-            <h4 className="font-bold truncate hover:underline">
-              {post.author.firstName + " " + post.author.lastName}
-            </h4>
-            <span className="text-gray-500 truncate  hover:underline">
-              @{post.author.username}
-            </span>
-            <span className="text-gray-400">·</span>
-            <span className="text-gray-500 text-sm  hover:underline">
-              {formatDistanceToNow(new Date(post.createdAt), {
-                addSuffix: true,
-              })}
-            </span>
+            <div className="flex flex-col ">
+              <h4 className="font-bold truncate hover:underline">
+                {post.author.firstName + " "}
+              </h4>
+              <h4 className="font-bold truncate hover:underline">
+                {post.author.lastName}
+              </h4>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-gray-500 truncate  hover:underline">
+                @{post.author.username}
+              </span>
+              <span className="text-gray-500 text-sm  hover:underline">
+                {formatDistanceToNow(new Date(post.createdAt), {
+                  addSuffix: true,
+                })}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center mt-1 text-sky-500 text-sm hover:underline">

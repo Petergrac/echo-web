@@ -1,6 +1,6 @@
 "use client";
 import SearchHashTags from "@/components/hashtags/SearchHashTags";
-import TagComponent from "@/components/hashtags/TagComponent";
+import TagComponent from "@/components/hashtags/TrendingTag";
 import PostCard from "@/components/post/feed/PostCard";
 import BackBar from "@/components/post/post-detail/Back-Bar";
 import PostDetailLoader from "@/components/post/post-detail/PostDetailLoader";
@@ -8,7 +8,6 @@ import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 import { useUniversalInfiniteQuery } from "@/lib/hooks/useUniversalInfiniteQuery";
 import { useUniversalStore } from "@/stores/universalStore";
 import { Post } from "@/types/post";
-import { SearchIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -84,11 +83,11 @@ const HashTagPage = () => {
       <SearchHashTags />
       {/* TRENDING HASHTAGS */}
       <TagComponent />
-      <div>
+      <>
         {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
-      </div>
+      </>
       <InfiniteScrollTrigger
         hasNextPage={hasNextPage}
         fetchNextPage={fetchNextPage}

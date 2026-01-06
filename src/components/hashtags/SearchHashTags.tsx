@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface TagResponseDto {
   id: string;
@@ -32,9 +33,9 @@ const SearchHashTags = () => {
   };
 
   return (
-    <div className="relative w-full mt-18">
+    <div className="sticky w-full backdrop-blur-lg z-60 top-18">
       {/* Search Bar */}
-      <div className="relative flex items-center">
+      <div className="relative gap-1 justify-between flex items-center">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
           type="search"
@@ -48,6 +49,9 @@ const SearchHashTags = () => {
         {isLoading && (
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin size-4 text-primary" />
         )}
+        <Link href={`/search`} className="text-xs hover:underline text-sky-500">
+          Advance Search
+        </Link>
       </div>
 
       {/* Results Dropdown */}

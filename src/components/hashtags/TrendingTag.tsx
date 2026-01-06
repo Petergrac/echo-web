@@ -10,20 +10,20 @@ export interface TagType {
 }
 const TagComponent = () => {
   //* 0.Get Trending tags
-  const { data: trendingTags, isLoading, isError} = useTrendingTags();
+  const { data: trendingTags, isLoading, isError } = useTrendingTags();
   if (isLoading) {
-    return <Skeleton className="h-5 w-full rounded-2xl my-4" />;
+    return <Skeleton className="h-5 w-full rounded-2xl mt-20" />;
   }
   if (isError) {
     return (
-      <p className="text-center text-red-800 my-4">
+      <p className="text-center text-red-800  mt-20">
         Error Loading Trending Tags
       </p>
     );
   }
   return (
     <>
-      <p className="text-center text-gray-400 text-sm pt-2">
+      <p className="text-center text-gray-400 text-sm  mt-20">
         Trending Hashtags
       </p>
       <div className="my-3 flex items-center justify-center gap-4">
