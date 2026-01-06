@@ -100,7 +100,8 @@ const AppSideBar = () => {
           </div>
           {isConnected ? (
             <p className="text-center py-3 items-center  flex gap-4">
-              🔵 <span className="text-sm">Online</span>
+              <span className="bg-[#beef00] h-4 w-4 rounded-full" />{" "}
+              <span className="text-sm">Online</span>
             </p>
           ) : (
             <p className="text-center py-3 items-center  flex gap-4">
@@ -115,7 +116,7 @@ const AppSideBar = () => {
                 key={l.index}
               >
                 {l.url === "/notifications" && (
-                  <p className="absolute  top-[3px] -left-px flex justify-center text-sm rounded-full bg-sky-500 w-5">
+                  <p className="absolute  top-[3px] -left-px flex justify-center text-xs rounded-full bg-sky-500 w-5">
                     {count}
                   </p>
                 )}

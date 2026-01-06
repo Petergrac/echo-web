@@ -1,4 +1,4 @@
-const AdvanceSearch = () => {
+const TabsPage = () => {
     return (
         <div>
             Enter
@@ -6,4 +6,4 @@ const AdvanceSearch = () => {
     );
 }
 
-export default AdvanceSearch;
+export default TabsPage;

@@ -32,7 +32,7 @@ import { useWebSocketStore } from "@/stores/websocket-store";
 
 const LeftBar = () => {
   const router = useRouter();
-  const [_showDialog, setShowDialog] = useState(false);
+  const [, setShowDialog] = useState(false);
 
   const user = useCurrentUser();
   const { logout } = useAuthStore();
@@ -41,7 +41,7 @@ const LeftBar = () => {
 
   const navItems = [
     { href: "/feed", icon: Home, label: "Home" },
-    { href: "/search", icon: Search, label: "Explore" },
+    { href: "/explore", icon: Search, label: "Explore" },
     { href: "/notifications", icon: BellIcon, label: "Notifications" },
     { href: "/messages", icon: MessageSquareIcon, label: "Messages" },
     { href: "/bookmarks", icon: Bookmark, label: "Bookmarks" },
@@ -59,8 +59,9 @@ const LeftBar = () => {
       <div className="flex flex-col pt-10 justify-between items-center md:items-start px-2 md:px-6 w-full">
         {/* Navigation Items */}
         {isConnected ? (
-          <p className="text-center px-3  flex gap-4">
-            🔵 <span className="hidden md:block">Online</span>
+          <p className="text-center px-3  flex items-center gap-4">
+            <span className="bg-[#beef00] h-4 w-4 rounded-full" />{" "}
+            <span className="hidden md:block">Online</span>
           </p>
         ) : (
           <p className="text-center px-3 flex gap-4">
