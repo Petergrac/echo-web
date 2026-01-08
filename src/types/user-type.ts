@@ -14,6 +14,7 @@ export interface UserType {
   followingCount: string | number;
   postCount: number;
   isFollowing: boolean;
+  isAdmin?: boolean;
 }
 
 export interface FollowType extends UserType {

@@ -1,6 +1,6 @@
-import { SearchBar } from "../rightbar/SearchBar";
-import { TrendingList } from "../rightbar/TrendingList";
-import { WhoToFollow } from "../rightbar/WhoToFollow";
+import { SearchBar } from "../rightBar/SearchBar";
+import { TrendingList } from "../rightBar/TrendingList";
+import { WhoToFollow } from "../rightBar/WhoToFollow";
 
 const RightBar = () => {
   return (
@@ -16,7 +16,7 @@ const RightBar = () => {
         <span className="hover:underline cursor-pointer">Terms of Service</span>
         <span className="hover:underline cursor-pointer">Privacy Policy</span>
         <span className="hover:underline cursor-pointer">Accessibility</span>
-        <span>© 2026 X Corp.</span>
+        <span>© 2026 Echo Corp.</span>
       </div>
     </aside>
   );

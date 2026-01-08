@@ -71,7 +71,7 @@ export default function SearchPage() {
 
   return (
     <div className="">
-      <BackBar type="Advance Search"/>
+      <BackBar type="Advance Search" />
       <div className="container w-full sm:w-150 mt-15 mx-auto p-4 space-y-6">
         {/* Search Header */}
         <div className="space-y-4">
@@ -102,7 +102,8 @@ export default function SearchPage() {
           {searchResults && !isLoading && (
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <div>
-                Found <span className="font-semibold">{searchResults.total}</span>{" "}
+                Found{" "}
+                <span className="font-semibold">{searchResults.total}</span>{" "}
                 results for &quot;{query}&quot;
               </div>
               <div className="flex items-center gap-4">
@@ -146,7 +147,9 @@ export default function SearchPage() {
         {/* Main Content */}
         <Tabs
           value={activeTab}
-          onValueChange={(value: string) => setActiveTab(value)}
+          onValueChange={(value: string) =>
+            setActiveTab(value as "combined" | "users" | "posts" | "hashtags")
+          }
           className="space-y-4"
         >
           <TabsList className="grid grid-cols-4 w-full">
@@ -445,9 +448,6 @@ function HashtagCard({
               <span>{hashtag.usageCount} uses</span>
             </div>
           </div>
-          <Button variant="outline" size="sm">
-            Follow
-          </Button>
         </Link>
       </CardContent>
     </Card>

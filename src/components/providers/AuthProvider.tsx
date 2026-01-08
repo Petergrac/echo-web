@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="flex w-full justify-between">
-        <div className="hidden md:inline">
+        <div className="hidden md:block">
           <LeftBarSkeleton />
         </div>
         <div className="flex flex-col w-150">
@@ -29,10 +29,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             <PostDetailLoader key={i} />
           ))}
         </div>
-        <div className="hidden md:inline">
+        <div className="hidden md:block">
           <LeftBarSkeleton />
         </div>
-        /
       </div>
     );
   }

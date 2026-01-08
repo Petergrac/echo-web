@@ -14,9 +14,10 @@ interface Props {
 export default function ProfileClient({ username, children }: Props) {
   const { data: user, isLoading, isError, error } = useProfile(username);
   const pathName = usePathname();
-
-  if (isLoading) return <ProfileLoader />;
+  console.log(username);
   const href = [`/${username}/followers`, `/${username}/following`];
+  if (isLoading && href.includes(pathName)) return <ProfileLoader />;
+
   if (isError && error)
     return (
       <div className="flex justify-start flex-col items-center">
