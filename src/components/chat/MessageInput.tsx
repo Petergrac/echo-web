@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Paperclip, Smile, Send, X } from "lucide-react";
 import { useChat } from "@/lib/hooks/useChat";
+import { ApiMessage } from "@/types/chat";
 
 interface MessageInputProps {
   conversationId: string;
   onSend: (content: string, file?: File) => void;
-  replyTo?: any;
+  replyTo?: ApiMessage;
   onCancelReply?: () => void;
 }
 

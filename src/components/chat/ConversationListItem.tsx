@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useChat } from "@/lib/hooks/useChat";
-import { Conversation } from "@/stores/chat-store";
+import { Conversation } from "@/types/chat";
 import { formatDistanceToNow } from "date-fns";
 
 interface ConversationListItemProps {

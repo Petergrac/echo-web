@@ -1,35 +1,13 @@
-import { Conversation } from "@/stores/chat-store";
-import { UserType } from "@/types/user-type";
+import { ApiConversation, ApiMessage, ApiUser } from "@/types/chat";
 import { io, Socket } from "socket.io-client";
 
 const CHAT_WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
 
 //* Chat Socket instance
 let chatSocket: Socket | null = null;
-export type ChatType = "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "FILE" | "GIF";
 
 //* Event types specific to chat
-export type ChatMessageEvent = {
-  id: string;
-  content: string;
-  type: ChatType;
-  sender: {
-    id: string;
-    username: string;
-    avatar?: string;
-  };
-  conversationId: string;
-  createdAt: string;
-  updatedAt?: string;
-  replyTo?: ChatMessageEvent;
-  media?: {
-    url: string;
-    type: string;
-    width?: number;
-    height?: number;
-  };
-};
-
+export type ChatMessageEvent = ApiMessage;
 export type TypingEvent = {
   conversationId: string;
   userId: string;
@@ -58,18 +36,18 @@ export interface ChatWebSocketEventMap {
   //* Server → Client events
   connected: { message: string; userId: string };
   joined_conversation: { conversationId: string };
-  new_message: { conversationId: string; message: ChatMessageEvent };
+  new_message: { conversationId: string; message: ApiMessage };
   message_notification: {
     conversationId: string;
-    message: ChatMessageEvent;
+    message: ApiMessage;
     unreadCount: number;
   };
   user_typing: TypingEvent;
   reaction_added: ReactionEvent;
   reaction_removed: ReactionEvent;
   messages_read: ReadReceiptEvent;
-  conversation_updated: Conversation;
-  user_joined: { conversationId: string; user: UserType };
+  conversation_updated: ApiConversation;
+  user_joined: { conversationId: string; user: ApiUser };
   user_left: { conversationId: string; userId: string };
   error: { message: string };
 }

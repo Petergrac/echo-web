@@ -16,11 +16,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Conversation } from "@/stores/chat-store";
 import { UserType } from "@/types/user-type";
 import { useChat } from "@/lib/hooks/useChat";
 import { useCreateConversation } from "@/lib/hooks/api/chat";
 import api from "@/lib/api/axios";
+import Link from "next/link";
+import { Conversation } from "@/types/chat";
 
 export default function MessagesPage() {
   const { conversations, loadingConversations } = useChat();
@@ -130,7 +131,7 @@ export default function MessagesPage() {
                     </p>
                     <ScrollArea className="h-[300px]">
                       <div className="space-y-2">
-                        {users?.users?.map((user: UserType) => (
+                        {users?.followers?.map((user: UserType) => (
                           <div
                             key={user.id}
                             className={`flex items-center p-2 rounded-lg cursor-pointer hover:bg-accent ${
@@ -243,10 +244,9 @@ export default function MessagesPage() {
         ) : (
           <div>
             {filteredConversations.map((conversation: Conversation) => (
-              <ConversationListItem
-                key={conversation.id}
-                conversation={conversation}
-              />
+              <Link href={`/messages/${conversation.id}`} key={conversation.id}>
+                <ConversationListItem conversation={conversation} />
+              </Link>
             ))}
           </div>
         )}

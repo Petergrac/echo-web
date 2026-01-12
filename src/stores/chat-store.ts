@@ -12,39 +12,13 @@ import {
   addReaction as addReactionSocket,
   markMessagesAsRead as markMessagesAsReadSocket,
   type ChatMessageEvent,
-  ChatType,
 } from "@/lib/websocket/chat-socket";
 import { toast } from "sonner";
-
-export interface Conversation {
-  id: string;
-  name?: string;
-  type: "DIRECT" | "GROUP";
-  avatar?: string;
-  lastMessage?: ChatMessageEvent;
-  lastMessageAt: string;
-  participants: Array<{
-    id: string;
-    username: string;
-    avatar?: string;
-    isAdmin: boolean;
-    joinedAt: string;
-  }>;
-  unreadCount: number;
-  messageCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import { ApiReadReceipt, ChatType, Conversation } from "@/types/chat";
 
 export interface ChatMessage extends ChatMessageEvent {
   isSending?: boolean;
   isError?: boolean;
-  reactions?: Array<{
-    emoji: string;
-    userId: string;
-    username: string;
-    reactedAt: string;
-  }>;
   readBy?: string[];
 }
 
@@ -104,8 +78,16 @@ interface ChatState {
   sendMessage: (
     conversationId: string,
     content: string,
-    type?: ChatType,
-    replyToId?: string
+    type: ChatType,
+    replyToId: string,
+    sender: {
+      id: string;
+      username: string;
+      avatar?: string;
+    },
+    firstName: string,
+    readReceipts: ApiReadReceipt,
+    status: "SENT" | "DELIVERED" | "READ"
   ) => void;
   startTyping: (conversationId: string) => void;
   stopTyping: (conversationId: string) => void;
@@ -239,9 +221,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
               //* Add new reaction
               messages[messageIndex].reactions!.push({
+                id: data.reaction.id,
                 emoji: data.reaction.emoji,
                 userId: data.reaction.userId,
-                username: data.reaction.userId, // You might want to fetch username
                 reactedAt: data.reaction.reactedAt,
               });
             }
@@ -501,7 +483,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     conversationId,
     content,
     type: ChatType = "TEXT",
-    replyToId
+    replyToId,
+    sender,
+    firstName,
+    readReceipts,
+    status
   ) => {
     const tempId = `temp-${Date.now()}`;
 
@@ -510,10 +496,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
       id: tempId,
       content,
       type: type,
-      sender: { id: "current", username: "You" }, // Will be replaced by server
+      sender: {
+        id: sender.id,
+        avatar: sender.avatar,
+        username: sender.username,
+        firstName,
+      },
       conversationId,
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      reactions: [],
+      readBy: [],
       isSending: true,
+      readReceipts: [],
+      status,
     });
 
     // Send via socket

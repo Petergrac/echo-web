@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/axios";
 import { useUniversalInfiniteQuery } from "../useUniversalInfiniteQuery";
+import { ChatMessage } from "@/stores/chat-store";
+import { Conversation } from "@/types/chat";
 
 interface UpdateConversationType {
   name?: string;
@@ -21,7 +23,7 @@ export const useConversations = (page = 1, limit = 50) => {
 };
 
 export const useConversation = (id: string) => {
-  return useQuery({
+  return useQuery<Conversation>({
     queryKey: ["conversation", id],
     queryFn: async () => {
       const response = await api.get(`chat/conversations/${id}`);
@@ -89,7 +91,7 @@ export const useLeaveConversation = () => {
 
 //* Message endpoints
 export const useMessages = (conversationId: string, limit = 50) => {
-  return useUniversalInfiniteQuery(
+  return useUniversalInfiniteQuery<ChatMessage>(
     ["messages", conversationId],
     `chat/conversations/${conversationId}/messages`,
     limit,
@@ -106,7 +108,7 @@ export const useSendMessage = () => {
     mutationFn: async ({
       conversationId,
       content,
-      type = "TEXT",
+      type = "text",
       replyToId,
       file,
     }: {

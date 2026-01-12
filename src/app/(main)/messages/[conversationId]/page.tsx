@@ -21,7 +21,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { UserType } from "@/types/user-type";
 import { useChat } from "@/lib/hooks/useChat";
 import {
   useConversation,
@@ -29,12 +28,14 @@ import {
   useMessages,
 } from "@/lib/hooks/api/chat";
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
+import { useCurrentUser } from "@/stores/useStore";
+import { ApiMessage } from "@/types/chat";
 
 export default function ConversationPage() {
   const params = useParams();
   const router = useRouter();
   const conversationId = params.conversationId as string;
-
+  const user = useCurrentUser();
   const {
     activeConversation,
     getMessages,
@@ -44,16 +45,21 @@ export default function ConversationPage() {
     isUserOnline,
   } = useChat();
 
-  const { data: conversationData } = useConversation(conversationId);
+  const {
+    data: conversationData,
+    isLoading: convLoading,
+    isError: convError,
+  } = useConversation(conversationId);
   const {
     data: messagesData,
     hasNextPage,
+    isLoading,
+    isError,
     isFetchingNextPage,
     fetchNextPage,
   } = useMessages(conversationId);
   const { mutate: leaveConversation } = useLeaveConversation();
-
-  const [replyTo, setReplyTo] = useState<any>(null);
+  const [replyTo, setReplyTo] = useState<ApiMessage | null>(null);
   const [isParticipantsDialogOpen, setIsParticipantsDialogOpen] =
     useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -66,9 +72,14 @@ export default function ConversationPage() {
     }
   }, [conversationData, activeConversation, selectConversation]);
 
+  if (isLoading || convLoading) {
+    return <div>Loading conversation</div>;
+  }
+  if (isError || convError) {
+    return <div className="">Error when loading messages</div>;
+  }
   //* Combine API messages with WebSocket messages
-  const apiMessages =
-    messagesData?.pages.flatMap((page) => page.messages) || [];
+  const apiMessages = messagesData?.pages.flatMap((page) => page.items) || [];
   const socketMessages = getMessages(conversationId);
   const allMessages = [...apiMessages, ...socketMessages]
     .filter(
@@ -78,11 +89,6 @@ export default function ConversationPage() {
       (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
-
-  //* Auto-scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [allMessages]);
 
   const typingUsers = getTypingUsers(conversationId);
 
@@ -111,7 +117,7 @@ export default function ConversationPage() {
 
   const conversation = activeConversation || conversationData;
   const isDirectMessage = conversation?.type === "DIRECT";
-
+  console.log(conversation?.participants);
   return (
     <div className="h-screen flex flex-col">
       {/* Header */}
@@ -127,7 +133,9 @@ export default function ConversationPage() {
 
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={conversation?.avatar} />
+              <AvatarImage
+                src={conversation?.avatar || "https://github.com/shadcn.png"}
+              />
               <AvatarFallback>
                 {conversation?.name?.charAt(0) || "?"}
               </AvatarFallback>
@@ -138,7 +146,7 @@ export default function ConversationPage() {
                 <h2 className="font-semibold">
                   {conversation?.name ||
                     (isDirectMessage &&
-                      conversation?.participants[0]?.username) ||
+                      conversation?.participants[0]?.user.username) ||
                     "Unknown"}
                 </h2>
 
@@ -247,7 +255,7 @@ export default function ConversationPage() {
                 <MessageBubble
                   key={message.id}
                   message={message}
-                  isOwn={message.sender.id === "current"} // Replace with actual current user ID
+                  isOwn={message.sender.id === user?.id} // Replace with actual current user ID
                   showAvatar={showAvatar}
                 />
               );
@@ -258,12 +266,14 @@ export default function ConversationPage() {
       </ScrollArea>
 
       {/* Message Input */}
-      <MessageInput
-        conversationId={conversationId}
-        onSend={handleSend}
-        replyTo={replyTo}
-        onCancelReply={() => setReplyTo(null)}
-      />
+      {replyTo && (
+        <MessageInput
+          conversationId={conversationId}
+          onSend={handleSend}
+          replyTo={replyTo}
+          onCancelReply={() => setReplyTo(null)}
+        />
+      )}
 
       {/* Participants Dialog */}
       <Dialog
@@ -278,20 +288,20 @@ export default function ConversationPage() {
           </DialogHeader>
 
           <div className="space-y-2">
-            {conversation?.participants?.map((participant: UserType) => (
+            {conversation?.participants.map((participant) => (
               <div
-                key={participant.id}
+                key={participant.user.id}
                 className="flex items-center justify-between p-2"
               >
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarImage src={participant.avatar} />
+                    <AvatarImage src={participant.user.avatar} />
                     <AvatarFallback>
-                      {participant.username.charAt(0)}
+                      {participant.user.username.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{participant.username}</p>
+                    <p className="font-medium">{participant.user.username}</p>
                     <p className="text-sm text-muted-foreground">
                       {isUserOnline(participant.id) ? "Online" : "Offline"}
                     </p>

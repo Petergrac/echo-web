@@ -79,19 +79,13 @@ export function MessageBubble({
 
           {message.media && (
             <div className="mt-2">
-              {message.media.type === "image" ? (
-                <Image
-                  src={message.media.url}
-                  alt="Message media"
-                  className="rounded-lg max-w-full max-h-64 object-cover"
-                  width={256}
-                  height={256}
-                />
-              ) : (
-                <div className="p-4 bg-background/50 rounded-lg">
-                  <p className="text-sm">Media: {message.media.type}</p>
-                </div>
-              )}
+              <Image
+                src={message.media}
+                alt="Message media"
+                className="rounded-lg max-w-full max-h-64 object-cover"
+                width={256}
+                height={256}
+              />
             </div>
           )}
 
