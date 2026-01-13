@@ -86,7 +86,7 @@ export const useChat = () => {
   const sendMessage = useCallback(
     async (
       content: string,
-      type: ChatType = "TEXT",
+      type: ChatType = "text",
       replyToId?: string,
       file?: File
     ) => {

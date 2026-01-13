@@ -3,9 +3,9 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MoreVertical, Reply, ThumbsUp } from "lucide-react";
-import { ChatMessage } from "@/stores/chat-store";
 import { useChat } from "@/lib/hooks/useChat";
 import Image from "next/image";
+import { ChatMessage } from "@/types/chat";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -25,7 +25,6 @@ export function MessageBubble({
   };
 
   const handleReply = () => {
-    // Implement reply functionality
   };
 
   return (
@@ -61,7 +60,7 @@ export function MessageBubble({
               : "bg-muted rounded-tl-none"
           )}
         >
-          {message.replyTo && (
+      
             <div
               className={cn(
                 "border-l-2 pl-2 mb-2 text-sm",
@@ -70,10 +69,9 @@ export function MessageBubble({
                   : "border-muted-foreground/30"
               )}
             >
-              <p className="font-medium">{message.replyTo.sender.username}</p>
-              <p className="truncate">{message.replyTo.content}</p>
+              <p className="font-medium">{message.sender.username}</p>
+              <p className="truncate">{message.content}</p>
             </div>
-          )}
 
           <p className="whitespace-pre-wrap">{message.content}</p>
 

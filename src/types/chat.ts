@@ -50,8 +50,8 @@ export interface ApiReadReceipt {
 export interface ApiMessage {
   id: string;
   content: string;
-  type: "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "FILE" | "GIF";
-  status: "SENT" | "DELIVERED" | "READ";
+  type: "text" | "image" | "video" | "audio" | "file" | "gif";
+  status: "sent" | "delivered" | "read";
   conversationId: string;
   sender: ApiUser;
   replyTo?: ApiMessage;
@@ -78,6 +78,7 @@ export interface ChatMessage {
   createdAt: string;
   updatedAt?: string;
   reactions: MessageReaction[];
+  media?: string;
   readBy: string[];
   isSending?: boolean;
   isError?: boolean;
@@ -89,7 +90,7 @@ export interface MessageReaction {
   userId: string;
   reactedAt: string;
 }
-export type ChatType = "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "FILE" | "GIF";
+export type ChatType = "text" | "image" | "video" | "audio" | "file" | "gif";
 
 export interface ConversationParticipant {
   id: string;
@@ -100,6 +101,7 @@ export interface ConversationParticipant {
   unreadCount?: number;
   notificationEnabled: boolean;
   user: ApiUser;
+  isOnline: boolean;
 }
 
 export interface Conversation {
@@ -113,6 +115,7 @@ export interface Conversation {
   messageCount: number;
   createdAt: string;
   updatedAt: string;
+  isOnline: boolean;
   participants: ConversationParticipant[];
 }
 

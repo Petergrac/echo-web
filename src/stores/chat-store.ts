@@ -14,7 +14,6 @@ import {
 } from "@/lib/websocket/chat-socket";
 import { toast } from "sonner";
 import {
-  ApiReadReceipt,
   ChatMessage,
   ChatType,
   Conversation,
@@ -37,8 +36,6 @@ interface ChatState {
   messages: Map<string, ChatMessage[]>; // conversationId -> messages
   typingUsers: Map<string, UserTyping[]>; // conversationId -> typing users
   onlineUsers: Set<string>;
-  isUserOnline: boolean;
-  getOnlineStatus: (userId: string) => boolean;
 
   //* Actions
   initializeChatSocket: () => void;
@@ -71,7 +68,7 @@ interface ChatState {
   clearTyping: (conversationId: string) => void;
 
   //* Online status
-  setOnlineUsers: (users: string[]) => void;
+  getOnlineUsers: () => void;
   addOnlineUser: (userId: string) => void;
   removeOnlineUser: (userId: string) => void;
 
@@ -102,7 +99,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: new Map(),
   typingUsers: new Map(),
   onlineUsers: new Set(),
-  isUserOnline: false,
 
   //* Actions
   initializeChatSocket: () => {
@@ -285,29 +281,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
         description: error.message,
       });
     });
-    socket.on(
-      "user_online_status",
-      (data: { userId: string; isOnline: boolean }) => {
-        set({ isUserOnline: data.isOnline });
-      }
-    );
+
+    socket.on("online_users", (data:{ onlineUsers: string[]}) => {
+      set({ onlineUsers: new Set(data.onlineUsers) });
+    });
 
     set({ socket });
-  },
-
-  getOnlineStatus: (userId: string) => {
-    const { socket } = get();
-    if (socket) {
-      socket.emit(
-        "is_user_online",
-        { userId },
-        (response: { isOnline: boolean }) => {
-          console.log("online status:", response.isOnline);
-          return response.isOnline;
-        }
-      );
-    }
-    return false;
   },
   disconnectSocket: () => {
     const { socket } = get();
@@ -477,8 +456,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   //* Online status
-  setOnlineUsers: (users) => {
-    set({ onlineUsers: new Set(users) });
+  getOnlineUsers: () => {
+    const { socket } = get();
+    if (socket) {
+      console.log("Requested online users");
+      socket.emit("get_online_users");
+    }
   },
 
   addOnlineUser: (userId) => {
@@ -501,7 +484,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   sendMessage: (
     conversationId,
     content,
-    type: ChatType = "TEXT",
+    type: ChatType = "text",
     replyToId,
     sender
   ) => {

@@ -6,7 +6,7 @@ import { MessageBubble } from "@/components/chat/MessageBubble";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MoreVertical, Phone, Video, Users } from "lucide-react";
+import { ArrowLeft, MoreVertical, Users } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
@@ -29,8 +29,8 @@ import {
 } from "@/lib/hooks/api/chat";
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 import { useCurrentUser } from "@/stores/useStore";
-import { ApiMessage } from "@/types/chat";
 import { useChatStore } from "@/stores/chat-store";
+import { ApiMessage } from "@/types/chat";
 
 export default function ConversationPage() {
   const params = useParams();
@@ -44,7 +44,7 @@ export default function ConversationPage() {
     selectConversation,
     sendMessage,
   } = useChat();
-  const { getOnlineStatus, isUserOnline } = useChatStore();
+  const { getOnlineUsers, onlineUsers } = useChatStore();
 
   const {
     data: conversationData,
@@ -60,18 +60,24 @@ export default function ConversationPage() {
     fetchNextPage,
   } = useMessages(conversationId);
   const { mutate: leaveConversation } = useLeaveConversation();
-  const [replyTo, setReplyTo] = useState<ApiMessage | null>(null);
   const [isParticipantsDialogOpen, setIsParticipantsDialogOpen] =
     useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [replyToMessage, setReplyToMessage] = useState<ApiMessage | null>(null);
 
   //* Load conversation when page loads
   useEffect(() => {
     if (conversationData && !activeConversation) {
       selectConversation(conversationData);
     }
-  }, [conversationData, activeConversation, selectConversation]);
+    getOnlineUsers();
+  }, [
+    conversationData,
+    activeConversation,
+    selectConversation,
+    getOnlineUsers,
+  ]);
 
   if (isLoading || convLoading) {
     return <div>Loading conversation</div>;
@@ -94,8 +100,7 @@ export default function ConversationPage() {
   const typingUsers = getTypingUsers(conversationId);
 
   const handleSend = (content: string, file?: File) => {
-    sendMessage(content, "TEXT", replyTo?.id, file);
-    setReplyTo(null);
+    sendMessage(content, "text", replyUser?.userId, file);
   };
 
   const handleLeaveConversation = () => {
@@ -115,10 +120,30 @@ export default function ConversationPage() {
       </div>
     );
   }
+  const rawConversation = activeConversation || conversationData;
+  const conversation = rawConversation?.participants.map((p) => ({
+    ...p,
+    isOnline: onlineUsers.has(p.userId),
+  })).length
+    ? {
+        ...rawConversation,
+        participants: rawConversation.participants.map((p) => ({
+          ...p,
+          isOnline: onlineUsers.has(p.userId),
+        })),
+      }
+    : rawConversation;
+  if (!conversation && !user) {
+    return <div>This conversation does not exist</div>;
+  }
 
-  const conversation = activeConversation || conversationData;
+  const otherParticipant = conversation?.participants.find(
+    (p) => p.user.id !== user?.id
+  );
+
+  const replyUser = otherParticipant;
+
   const isDirectMessage = conversation?.type === "direct";
-  console.log(conversation);
   return (
     <div className="h-screen flex flex-col">
       {/* Header */}
@@ -134,9 +159,17 @@ export default function ConversationPage() {
 
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage
-                src={conversation?.avatar || "https://github.com/shadcn.png"}
-              />
+              {!isDirectMessage ? (
+                <AvatarImage
+                  src={conversation?.avatar || "https://github.com/shadcn.png"}
+                />
+              ) : (
+                <AvatarImage
+                  src={
+                    replyUser?.user.avatar || "https://github.com/shadcn.png"
+                  }
+                />
+              )}
               <AvatarFallback>
                 {conversation?.name?.charAt(0) || "?"}
               </AvatarFallback>
@@ -146,14 +179,13 @@ export default function ConversationPage() {
               <div className="flex items-center gap-2">
                 <h2 className="font-semibold">
                   {conversation?.name ||
-                    (isDirectMessage &&
-                      conversation?.participants[0]?.user.username) ||
+                    (isDirectMessage && replyUser?.user.username) ||
                     "Unknown"}
                 </h2>
 
-                {isDirectMessage && conversation?.participants[0] && (
-                  <Badge variant={isUserOnline ? "default" : "outline"}>
-                    {isUserOnline ? "Online" : "Offline"}
+                {isDirectMessage && (
+                  <Badge variant={replyUser?.isOnline ? "default" : "outline"}>
+                    {replyUser?.isOnline ? "Online" : "Offline"}
                   </Badge>
                 )}
               </div>
@@ -168,17 +200,6 @@ export default function ConversationPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          {isDirectMessage && (
-            <>
-              <Button variant="ghost" size="icon">
-                <Phone className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Video className="h-5 w-5" />
-              </Button>
-            </>
-          )}
-
           {!isDirectMessage && (
             <Button
               variant="ghost"
@@ -198,15 +219,11 @@ export default function ConversationPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={() => {
-                  if (conversation)
-                    getOnlineStatus(conversation.participants[0].user.id);
                   setIsParticipantsDialogOpen(true);
                 }}
               >
                 View Participants
               </DropdownMenuItem>
-              <DropdownMenuItem>Mute Notifications</DropdownMenuItem>
-              <DropdownMenuItem>Change Theme</DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={handleLeaveConversation}
@@ -261,16 +278,12 @@ export default function ConversationPage() {
           </div>
         )}
       </ScrollArea>
-
       {/* Message Input */}
-      {replyTo && (
-        <MessageInput
-          conversationId={conversationId}
-          onSend={handleSend}
-          replyTo={replyTo}
-          onCancelReply={() => setReplyTo(null)}
-        />
-      )}
+      <MessageInput
+        conversationId={conversationId}
+        onSend={handleSend}
+        replyTo={replyToMessage}
+      />
 
       {/* Participants Dialog */}
       <Dialog
@@ -300,7 +313,7 @@ export default function ConversationPage() {
                   <div>
                     <p className="font-medium">{participant.user.username}</p>
                     <p className="text-sm text-muted-foreground">
-                      {isUserOnline ? "Online" : "Offline"}
+                      {participant.isOnline ? "Online" : "Offline"}
                     </p>
                   </div>
                 </div>

@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Paperclip, Smile, Send, X } from "lucide-react";
+import { Paperclip, Send, X } from "lucide-react";
 import { useChat } from "@/lib/hooks/useChat";
 import { ApiMessage } from "@/types/chat";
+import AutoResizeTextarea from "../post/create-post/AutoResizeTextArea";
 
 interface MessageInputProps {
   conversationId: string;
   onSend: (content: string, file?: File) => void;
-  replyTo?: ApiMessage;
+  replyTo: ApiMessage | null;
   onCancelReply?: () => void;
 }
 
@@ -43,9 +43,9 @@ export function MessageInput({
     }, 3000);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
-    if (e.target.value.trim()) {
+  const handleChange = (value: string) => {
+    setMessage(value);
+    if (value.trim()) {
       handleTyping();
     }
   };
@@ -134,22 +134,13 @@ export function MessageInput({
         />
 
         <div className="flex-1 relative">
-          <Textarea
-            ref={textareaRef}
-            value={message}
+          <AutoResizeTextarea
             onChange={handleChange}
+            value={message}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            className="min-h-11 max-h-32 resize-none pr-12"
-            rows={1}
+            placeholder="Enter your Message"
+            className="border-t border-l border-r p-4"
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 bottom-2 h-8 w-8"
-          >
-            <Smile className="h-5 w-5" />
-          </Button>
         </div>
 
         <Button
