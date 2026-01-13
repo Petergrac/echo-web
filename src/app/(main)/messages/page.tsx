@@ -30,7 +30,11 @@ export default function MessagesPage() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [conversationName, setConversationName] = useState("");
 
-  const { mutate: createConversation, isPending } = useCreateConversation();
+  const {
+    mutate: createConversation,
+    isPending,
+    data: conversation,
+  } = useCreateConversation();
 
   //* Fetch users for creating new conversations
   const { data: users } = useQuery({
@@ -53,7 +57,7 @@ export default function MessagesPage() {
 
     const searchLower = searchQuery.toLowerCase();
     const name =
-      conv.name || conv.participants.map((p) => p.username).join(", ");
+      conv.name || conv.participants.map((p) => p.user.username).join(", ");
 
     return (
       name.toLowerCase().includes(searchLower) ||
@@ -61,11 +65,11 @@ export default function MessagesPage() {
     );
   });
 
-  const handleCreateConversation = (type: "DIRECT" | "GROUP") => {
-    if (type === "DIRECT" && selectedUsers.length === 1) {
+  const handleCreateConversation = (type: "direct" | "group") => {
+    if (type === "direct" && selectedUsers.length === 1) {
       createConversation(
         {
-          type: "DIRECT",
+          type: "direct",
           participantIds: selectedUsers,
         },
         {
@@ -75,10 +79,10 @@ export default function MessagesPage() {
           },
         }
       );
-    } else if (type === "GROUP" && selectedUsers.length > 0) {
+    } else if (type === "group" && selectedUsers.length > 0) {
       createConversation(
         {
-          type: "GROUP",
+          type: "group",
           participantIds: selectedUsers,
           name: conversationName || undefined,
         },
@@ -158,7 +162,7 @@ export default function MessagesPage() {
                   </div>
 
                   <Button
-                    onClick={() => handleCreateConversation("DIRECT")}
+                    onClick={() => handleCreateConversation("direct")}
                     disabled={selectedUsers.length !== 1 || isPending}
                     className="w-full"
                   >
@@ -178,7 +182,7 @@ export default function MessagesPage() {
                     </p>
                     <ScrollArea className="h-[250px]">
                       <div className="space-y-2">
-                        {users?.users?.map((user: UserType) => (
+                        {users?.followers?.map((user: UserType) => (
                           <div
                             key={user.id}
                             className={`flex items-center p-2 rounded-lg cursor-pointer hover:bg-accent ${
@@ -205,7 +209,7 @@ export default function MessagesPage() {
                   </div>
 
                   <Button
-                    onClick={() => handleCreateConversation("GROUP")}
+                    onClick={() => handleCreateConversation("group")}
                     disabled={selectedUsers.length === 0 || isPending}
                     className="w-full"
                   >

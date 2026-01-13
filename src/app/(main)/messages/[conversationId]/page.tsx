@@ -30,6 +30,7 @@ import {
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 import { useCurrentUser } from "@/stores/useStore";
 import { ApiMessage } from "@/types/chat";
+import { useChatStore } from "@/stores/chat-store";
 
 export default function ConversationPage() {
   const params = useParams();
@@ -42,8 +43,8 @@ export default function ConversationPage() {
     getTypingUsers,
     selectConversation,
     sendMessage,
-    isUserOnline,
   } = useChat();
+  const { getOnlineStatus, isUserOnline } = useChatStore();
 
   const {
     data: conversationData,
@@ -116,8 +117,8 @@ export default function ConversationPage() {
   }
 
   const conversation = activeConversation || conversationData;
-  const isDirectMessage = conversation?.type === "DIRECT";
-  console.log(conversation?.participants);
+  const isDirectMessage = conversation?.type === "direct";
+  console.log(conversation);
   return (
     <div className="h-screen flex flex-col">
       {/* Header */}
@@ -151,16 +152,8 @@ export default function ConversationPage() {
                 </h2>
 
                 {isDirectMessage && conversation?.participants[0] && (
-                  <Badge
-                    variant={
-                      isUserOnline(conversation.participants[0].id)
-                        ? "default"
-                        : "outline"
-                    }
-                  >
-                    {isUserOnline(conversation.participants[0].id)
-                      ? "Online"
-                      : "Offline"}
+                  <Badge variant={isUserOnline ? "default" : "outline"}>
+                    {isUserOnline ? "Online" : "Offline"}
                   </Badge>
                 )}
               </div>
@@ -204,7 +197,11 @@ export default function ConversationPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => setIsParticipantsDialogOpen(true)}
+                onClick={() => {
+                  if (conversation)
+                    getOnlineStatus(conversation.participants[0].user.id);
+                  setIsParticipantsDialogOpen(true);
+                }}
               >
                 View Participants
               </DropdownMenuItem>
@@ -303,7 +300,7 @@ export default function ConversationPage() {
                   <div>
                     <p className="font-medium">{participant.user.username}</p>
                     <p className="text-sm text-muted-foreground">
-                      {isUserOnline(participant.id) ? "Online" : "Offline"}
+                      {isUserOnline ? "Online" : "Offline"}
                     </p>
                   </div>
                 </div>

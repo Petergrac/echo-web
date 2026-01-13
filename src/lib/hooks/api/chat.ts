@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/axios";
 import { useUniversalInfiniteQuery } from "../useUniversalInfiniteQuery";
-import { ChatMessage } from "@/stores/chat-store";
-import { Conversation } from "@/types/chat";
+import { ChatMessage, Conversation } from "@/types/chat";
+import { useRouter } from "next/navigation";
 
 interface UpdateConversationType {
   name?: string;
@@ -35,18 +35,26 @@ export const useConversation = (id: string) => {
 
 export const useCreateConversation = () => {
   const queryClient = useQueryClient();
-
+  const router = useRouter();
   return useMutation({
     mutationFn: async (data: {
       participantIds: string[];
       name?: string;
-      type: "DIRECT" | "GROUP";
+      type: "direct" | "group";
     }) => {
-      const response = await api.post("chat/conversations", data);
-      return response.data;
+      try {
+        const response = await api.post("chat/conversations", data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data: Conversation) => {
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      router.push(`/messages/${data.id}`);
+    },
+    onError: (error) => {
+      console.error("Error creating conversation:", error);
     },
   });
 };

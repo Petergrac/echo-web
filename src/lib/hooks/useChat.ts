@@ -1,8 +1,8 @@
-import { Conversation, useChatStore } from "@/stores/chat-store";
-import { useWebSocketStore } from "@/stores/websocket-store";
+import { useChatStore } from "@/stores/chat-store";
 import { useEffect, useCallback, useRef, useState } from "react";
 import { useConversations, useSendMessage } from "./api/chat";
-import { ChatType } from "../websocket/chat-socket";
+import { ChatType, Conversation } from "@/types/chat";
+import { useCurrentUser } from "@/stores/useStore";
 
 export const useChat = () => {
   const {
@@ -11,7 +11,6 @@ export const useChat = () => {
     activeConversation,
     messages,
     typingUsers,
-    onlineUsers,
     setConversations,
     setActiveConversation,
     joinConversation,
@@ -22,8 +21,7 @@ export const useChat = () => {
     addReaction: addReactionSocket,
     markMessagesRead: markMessagesReadSocket,
   } = useChatStore();
-
-  const { onlineUsers: notificationOnlineUsers } = useWebSocketStore();
+  const user = useCurrentUser();
 
   const { data: conversationsData, isLoading: loadingConversations } =
     useConversations();
@@ -63,12 +61,14 @@ export const useChat = () => {
       joinConversation(conversation.id);
 
       //* Mark messages as read
-      const unreadMessages = getMessages(conversation.id)
-        .filter((msg) => !msg.readBy?.includes("current")) // You'll need current user ID
-        .map((msg) => msg.id);
+      if (user) {
+        const unreadMessages = getMessages(conversation.id)
+          .filter((msg) => !msg.readBy?.includes(user.id))
+          .map((msg) => msg.id);
 
-      if (unreadMessages.length > 0) {
-        markMessagesReadSocket(conversation.id, unreadMessages);
+        if (unreadMessages.length > 0) {
+          markMessagesReadSocket(conversation.id, unreadMessages);
+        }
       }
     },
     [
@@ -78,6 +78,7 @@ export const useChat = () => {
       leaveConversation,
       markMessagesReadSocket,
       getMessages,
+      user,
     ]
   );
 
@@ -106,14 +107,26 @@ export const useChat = () => {
         }
       } else {
         //* Use socket for text messages
-        sendMessageSocket(activeConversation.id, content, type, replyToId);
+        if (user && replyToId) {
+          sendMessageSocket(activeConversation.id, content, type, replyToId!, {
+            id: user?.id,
+            username: user?.username,
+            avatar: user?.avatar,
+          });
+        }
       }
 
       //* Stop typing
       setIsTyping(false);
       stopTypingSocket(activeConversation.id);
     },
-    [activeConversation, sendMessageSocket, sendMessageApi, stopTypingSocket]
+    [
+      activeConversation,
+      sendMessageSocket,
+      sendMessageApi,
+      stopTypingSocket,
+      user,
+    ]
   );
 
   //* Typing handlers
@@ -142,12 +155,6 @@ export const useChat = () => {
   }, [activeConversation, isTyping, startTypingSocket, handleTyping]);
 
   //* Check if user is online
-  const isUserOnline = useCallback(
-    (userId: string) => {
-      return onlineUsers.has(userId) || notificationOnlineUsers.has(userId);
-    },
-    [onlineUsers, notificationOnlineUsers]
-  );
 
   return {
     //* State
@@ -170,6 +177,5 @@ export const useChat = () => {
     },
     addReaction: addReactionSocket,
     markMessagesRead: markMessagesReadSocket,
-    isUserOnline,
   };
 };

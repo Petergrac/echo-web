@@ -21,6 +21,12 @@ export function mapConversation(api: ApiConversation): Conversation {
       username: p.user.username,
       avatar: p.user.avatar,
       isAdmin: p.isAdmin,
+      isActive: p.isActive,
+      notificationEnabled: p.notificationsEnabled,
+      userId: p.userId,
+      user: p.user,
+      joinedAt: p.joinedAt,
+      unreadCount: p.unreadCount ?? 0,
     })),
   };
 }
@@ -39,6 +45,7 @@ export function mapMessage(api: ApiMessage): ChatMessage {
       avatar: api.sender.avatar,
     },
     reactions: api.reactions.map((r) => ({
+      id: r.id,
       emoji: r.emoji,
       userId: r.userId,
       reactedAt: r.reactedAt,

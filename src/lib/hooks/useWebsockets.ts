@@ -12,7 +12,6 @@ export const useWebSocket = () => {
     markAsRead,
     markAllAsRead,
     getOnlineStatus,
-    getPreferences,
     resetPreferences,
     checkPermission,
     clearNotifications,
@@ -39,7 +38,6 @@ export const useWebSocket = () => {
     markAsRead,
     markAllAsRead,
     getOnlineStatus,
-    getPreferences,
     resetPreferences,
     checkPermission,
     clearNotifications,
@@ -65,10 +63,9 @@ export const useOnlineStatus = (userIds: string[]) => {
 
 //* Hook for notification preferences
 export const useNotificationPreferences = () => {
-  const { getPreferences, resetPreferences, checkPermission } = useWebSocket();
+  const { resetPreferences, checkPermission } = useWebSocket();
 
   return {
-    getPreferences,
     resetPreferences,
     checkPermission,
   };

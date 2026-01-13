@@ -7,7 +7,6 @@ const CHAT_WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
 let chatSocket: Socket | null = null;
 
 //* Event types specific to chat
-export type ChatMessageEvent = ApiMessage;
 export type TypingEvent = {
   conversationId: string;
   userId: string;

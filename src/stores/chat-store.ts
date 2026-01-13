@@ -11,16 +11,15 @@ import {
   stopTyping as stopTypingSocket,
   addReaction as addReactionSocket,
   markMessagesAsRead as markMessagesAsReadSocket,
-  type ChatMessageEvent,
 } from "@/lib/websocket/chat-socket";
 import { toast } from "sonner";
-import { ApiReadReceipt, ChatType, Conversation } from "@/types/chat";
-
-export interface ChatMessage extends ChatMessageEvent {
-  isSending?: boolean;
-  isError?: boolean;
-  readBy?: string[];
-}
+import {
+  ApiReadReceipt,
+  ChatMessage,
+  ChatType,
+  Conversation,
+} from "@/types/chat";
+import { mapMessage } from "@/lib/mapper";
 
 export interface UserTyping {
   userId: string;
@@ -38,6 +37,8 @@ interface ChatState {
   messages: Map<string, ChatMessage[]>; // conversationId -> messages
   typingUsers: Map<string, UserTyping[]>; // conversationId -> typing users
   onlineUsers: Set<string>;
+  isUserOnline: boolean;
+  getOnlineStatus: (userId: string) => boolean;
 
   //* Actions
   initializeChatSocket: () => void;
@@ -84,10 +85,7 @@ interface ChatState {
       id: string;
       username: string;
       avatar?: string;
-    },
-    firstName: string,
-    readReceipts: ApiReadReceipt,
-    status: "SENT" | "DELIVERED" | "READ"
+    }
   ) => void;
   startTyping: (conversationId: string) => void;
   stopTyping: (conversationId: string) => void;
@@ -104,6 +102,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: new Map(),
   typingUsers: new Map(),
   onlineUsers: new Set(),
+  isUserOnline: false,
 
   //* Actions
   initializeChatSocket: () => {
@@ -135,10 +134,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
 
     socket.on("new_message", (data) => {
-      const { conversationId, message } = data;
+      const chatMessage = mapMessage(data.message);
+      const conversationId = data.conversationId;
 
       //* Add message to store
-      get().addMessage(conversationId, message);
+      get().addMessage(conversationId, chatMessage);
 
       //* Update conversation last message
       const conversations = get().conversations;
@@ -149,9 +149,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (conversationIndex > -1) {
         set(
           produce((state: ChatState) => {
-            state.conversations[conversationIndex].lastMessage = message;
+            state.conversations[conversationIndex].lastMessage = chatMessage;
             state.conversations[conversationIndex].lastMessageAt =
-              message.createdAt;
+              chatMessage.createdAt;
 
             //* If not active conversation, increment unread count
             if (state.activeConversation?.id !== conversationId) {
@@ -171,10 +171,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       //* Show notification if not in active conversation
       if (get().activeConversation?.id !== conversationId) {
         toast.info("New message", {
-          description: `${message.sender.username}: ${message.content.substring(
-            0,
-            50
-          )}...`,
+          description: `${
+            chatMessage.sender.username
+          }: ${chatMessage.content.substring(0, 50)}...`,
         });
       }
     });
@@ -286,10 +285,30 @@ export const useChatStore = create<ChatState>((set, get) => ({
         description: error.message,
       });
     });
+    socket.on(
+      "user_online_status",
+      (data: { userId: string; isOnline: boolean }) => {
+        set({ isUserOnline: data.isOnline });
+      }
+    );
 
     set({ socket });
   },
 
+  getOnlineStatus: (userId: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit(
+        "is_user_online",
+        { userId },
+        (response: { isOnline: boolean }) => {
+          console.log("online status:", response.isOnline);
+          return response.isOnline;
+        }
+      );
+    }
+    return false;
+  },
   disconnectSocket: () => {
     const { socket } = get();
     if (socket) {
@@ -484,10 +503,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     content,
     type: ChatType = "TEXT",
     replyToId,
-    sender,
-    firstName,
-    readReceipts,
-    status
+    sender
   ) => {
     const tempId = `temp-${Date.now()}`;
 
@@ -500,7 +516,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         id: sender.id,
         avatar: sender.avatar,
         username: sender.username,
-        firstName,
       },
       conversationId,
       createdAt: new Date().toISOString(),
@@ -508,8 +523,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       reactions: [],
       readBy: [],
       isSending: true,
-      readReceipts: [],
-      status,
     });
 
     // Send via socket

@@ -84,6 +84,7 @@ export interface ChatMessage {
 }
 
 export interface MessageReaction {
+  id: string;
   emoji: string;
   userId: string;
   reactedAt: string;
@@ -103,7 +104,7 @@ export interface ConversationParticipant {
 
 export interface Conversation {
   id: string;
-  type: "DIRECT" | "GROUP";
+  type: "direct" | "group";
   name?: string;
   avatar?: string;
   lastMessage?: ChatMessage;
