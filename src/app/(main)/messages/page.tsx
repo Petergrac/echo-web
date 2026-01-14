@@ -22,6 +22,8 @@ import { useCreateConversation } from "@/lib/hooks/api/chat";
 import api from "@/lib/api/axios";
 import Link from "next/link";
 import { Conversation } from "@/types/chat";
+import BackBar from "@/components/post/post-detail/Back-Bar";
+import { useCurrentUser } from "@/stores/useStore";
 
 export default function MessagesPage() {
   const { conversations, loadingConversations } = useChat();
@@ -29,12 +31,9 @@ export default function MessagesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [conversationName, setConversationName] = useState("");
+  const user = useCurrentUser();
 
-  const {
-    mutate: createConversation,
-    isPending,
-    data: conversation,
-  } = useCreateConversation();
+  const { mutate: createConversation, isPending } = useCreateConversation();
 
   //* Fetch users for creating new conversations
   const { data: users } = useQuery({
@@ -42,7 +41,7 @@ export default function MessagesPage() {
     queryFn: async () => {
       try {
         const response = await api.get(
-          "/users/sethgor/followers?page=1&limit=100"
+          `/users/${user?.username}/followers?page=1&limit=100`
         );
         return response.data;
       } catch (error) {
@@ -107,7 +106,8 @@ export default function MessagesPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="border-b p-4">
+      <BackBar type="Messages" push={true} />
+      <div className="border-b p-4 pt-19">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Messages</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

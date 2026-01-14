@@ -1,6 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useChat } from "@/lib/hooks/useChat";
+import { useChatStore } from "@/stores/chat-store";
+import { useCurrentUser } from "@/stores/useStore";
 import { Conversation } from "@/types/chat";
 import { formatDistanceToNow } from "date-fns";
 
@@ -13,18 +15,23 @@ export function ConversationListItem({
   conversation,
   isSelected,
 }: ConversationListItemProps) {
-  const { selectConversation, isUserOnline } = useChat();
+  const { selectConversation } = useChat();
+  const user = useCurrentUser();
+  const { onlineUsers } = useChatStore();
 
   const getDisplayName = () => {
     if (conversation.name) return conversation.name;
 
     //* For direct messages, show other participant's name
     if (
-      conversation.type === "DIRECT" &&
-      conversation.participants.length > 0
+      conversation.type === "direct" &&
+      conversation.participants.length > 0 &&
+      user
     ) {
-      const otherParticipant = conversation.participants[0]; // You'll need to filter current user
-      return otherParticipant.username;
+      const otherParticipant = conversation.participants.filter(
+        (p) => p.userId !== user.id
+      );
+      return otherParticipant[0].user.username;
     }
 
     return "Unknown";
@@ -34,11 +41,14 @@ export function ConversationListItem({
     if (conversation.avatar) return conversation.avatar;
 
     if (
-      conversation.type === "DIRECT" &&
-      conversation.participants.length > 0
+      conversation.type === "direct" &&
+      conversation.participants.length > 0 &&
+      user
     ) {
-      const otherParticipant = conversation.participants[0];
-      return otherParticipant.avatar;
+      const otherParticipant = conversation.participants.filter(
+        (p) => p.userId !== user.id
+      );
+      return otherParticipant[0].user.avatar;
     }
 
     return undefined;
@@ -46,11 +56,14 @@ export function ConversationListItem({
 
   const getOnlineStatus = () => {
     if (
-      conversation.type === "DIRECT" &&
-      conversation.participants.length > 0
+      conversation.type === "direct" &&
+      conversation.participants.length > 0 &&
+      user
     ) {
-      const otherParticipant = conversation.participants[0];
-      return isUserOnline(otherParticipant.id);
+      const otherParticipant = conversation.participants.filter(
+        (p) => p.userId !== user.id
+      );
+      return onlineUsers.has(otherParticipant[0].userId)
     }
     return false;
   };

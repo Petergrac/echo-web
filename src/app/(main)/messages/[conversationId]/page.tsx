@@ -100,7 +100,8 @@ export default function ConversationPage() {
   const typingUsers = getTypingUsers(conversationId);
 
   const handleSend = (content: string, file?: File) => {
-    sendMessage(content, "text", replyUser?.userId, file);
+    sendMessage(content, "text", replyToMessage?.id, file);
+    setReplyToMessage(null);
   };
 
   const handleLeaveConversation = () => {
@@ -263,13 +264,13 @@ export default function ConversationPage() {
                   new Date(previousMessage.createdAt).getTime()
                 : Infinity;
 
-              const showAvatar = !isSameSender || timeDiff > 5 * 60 * 1000; // 5 minutes
+              const showAvatar = !isSameSender || timeDiff > 5 * 60 * 1000;
 
               return (
                 <MessageBubble
                   key={message.id}
                   message={message}
-                  isOwn={message.sender.id === user?.id} // Replace with actual current user ID
+                  isOwn={message.sender.id === user?.id}
                   showAvatar={showAvatar}
                 />
               );

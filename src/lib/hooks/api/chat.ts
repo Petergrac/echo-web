@@ -134,7 +134,12 @@ export const useSendMessage = () => {
 
       const response = await api.post(
         `chat/conversations/${conversationId}/messages`,
-        formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       return response.data;
     },

@@ -1,6 +1,8 @@
 import { create } from "zustand";
-import { produce } from "immer";
+import { enableMapSet, produce } from "immer";
 import { Socket } from "socket.io-client";
+
+enableMapSet();
 import {
   initializeChatSocket,
   disconnectChatSocket,
@@ -13,11 +15,7 @@ import {
   markMessagesAsRead as markMessagesAsReadSocket,
 } from "@/lib/websocket/chat-socket";
 import { toast } from "sonner";
-import {
-  ChatMessage,
-  ChatType,
-  Conversation,
-} from "@/types/chat";
+import { ChatMessage, ChatType, Conversation } from "@/types/chat";
 import { mapMessage } from "@/lib/mapper";
 
 export interface UserTyping {
@@ -77,12 +75,13 @@ interface ChatState {
     conversationId: string,
     content: string,
     type: ChatType,
-    replyToId: string,
+
     sender: {
       id: string;
       username: string;
       avatar?: string;
-    }
+    },
+    replyToId?: string
   ) => void;
   startTyping: (conversationId: string) => void;
   stopTyping: (conversationId: string) => void;
@@ -282,7 +281,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       });
     });
 
-    socket.on("online_users", (data:{ onlineUsers: string[]}) => {
+    socket.on("online_users", (data: { onlineUsers: string[] }) => {
       set({ onlineUsers: new Set(data.onlineUsers) });
     });
 
@@ -358,21 +357,29 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }
         const messages = state.messages.get(conversationId)!;
 
-        // Don't add duplicates
-        if (
-          !messages.some(
-            (m) =>
-              m.id === message.id ||
-              (m.isSending && m.content === message.content)
-          )
-        ) {
-          messages.push(message);
-          //* Keep messages sorted by timestamp
-          messages.sort(
-            (a, b) =>
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
+        //* Find if there is an optimistic message that matches this new real message
+        const optimisticIndex = messages.findIndex(
+          (m) =>
+            m.isSending &&
+            m.content === message.content &&
+            m.sender.id === message.sender.id
+        );
+
+        if (optimisticIndex > -1) {
+          //* REPLACE the optimistic message with the real one from the server
+          messages[optimisticIndex] = message;
+        } else {
+          //* Otherwise, just add it if it's not a duplicate
+          if (!messages.some((m) => m.id === message.id)) {
+            messages.push(message);
+          }
         }
+
+        //* Keep messages sorted
+        messages.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
       })
     );
   },
@@ -485,12 +492,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     conversationId,
     content,
     type: ChatType = "text",
-    replyToId,
-    sender
+    sender,
+    replyToId
   ) => {
     const tempId = `temp-${Date.now()}`;
 
-    // Optimistic update
+    //* Optimistic update
     get().addMessage(conversationId, {
       id: tempId,
       content,
@@ -508,15 +515,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
       isSending: true,
     });
 
-    // Send via socket
+    //* Send via socket
     sendChatMessage(conversationId, { content, type, replyToId });
 
-    // Update status after 5 seconds if still sending
+    //* Update status after 5 seconds if still sending
     setTimeout(() => {
-      const messages = get().messages.get(conversationId);
-      const tempMessage = messages?.find((m) => m.id === tempId && m.isSending);
-      if (tempMessage) {
-        get().updateMessage(conversationId, tempId, { isError: true });
+      const currentMessages = get().messages.get(conversationId);
+      //* Look for the specific temporary ID
+      const tempMessage = currentMessages?.find((m) => m.id === tempId);
+
+      //* If it still exists AND still has isSending, it means addMessage never replaced it
+      if (tempMessage && tempMessage.isSending) {
+        get().updateMessage(conversationId, tempId, {
+          isError: true,
+          isSending: false,
+        });
       }
     }, 5000);
   },

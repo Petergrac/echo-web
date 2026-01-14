@@ -6,6 +6,7 @@ import { MoreVertical, Reply, ThumbsUp } from "lucide-react";
 import { useChat } from "@/lib/hooks/useChat";
 import Image from "next/image";
 import { ChatMessage } from "@/types/chat";
+import EmojiPickerButton from "../post/create-post/EmojiPicker";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -24,8 +25,7 @@ export function MessageBubble({
     addReaction(message.id, emoji);
   };
 
-  const handleReply = () => {
-  };
+  const handleReply = () => {};
 
   return (
     <div
@@ -37,9 +37,7 @@ export function MessageBubble({
           <AvatarFallback>{message.sender.username.charAt(0)}</AvatarFallback>
         </Avatar>
       )}
-
       {showAvatar && isOwn && <div className="w-8" />}
-
       <div
         className={cn(
           "flex flex-col max-w-[70%]",
@@ -51,7 +49,6 @@ export function MessageBubble({
             {message.sender.username}
           </p>
         )}
-
         <div
           className={cn(
             "rounded-2xl px-4 py-2",
@@ -60,18 +57,16 @@ export function MessageBubble({
               : "bg-muted rounded-tl-none"
           )}
         >
-      
-            <div
-              className={cn(
-                "border-l-2 pl-2 mb-2 text-sm",
-                isOwn
-                  ? "border-primary-foreground/30"
-                  : "border-muted-foreground/30"
-              )}
-            >
-              <p className="font-medium">{message.sender.username}</p>
-              <p className="truncate">{message.content}</p>
-            </div>
+          <div
+            className={cn(
+              "border-l-2 pl-2 mb-2 text-sm",
+              isOwn
+                ? "border-primary-foreground/30"
+                : "border-muted-foreground/30"
+            )}
+          >
+            <p className="font-medium">{message.sender.username}</p>
+          </div>
 
           <p className="whitespace-pre-wrap">{message.content}</p>
 
@@ -129,6 +124,11 @@ export function MessageBubble({
           >
             <Reply className="h-3 w-3" />
           </Button>
+          <div className="h-7 w-7">
+            <EmojiPickerButton
+              onEmojiSelect={(emoji) => addReaction(message.id, emoji)}
+            />
+          </div>
           <Button variant="ghost" size="icon" className="h-6 w-6">
             <MoreVertical className="h-3 w-3" />
           </Button>

@@ -107,15 +107,20 @@ export const useChat = () => {
         }
       } else {
         //* Use socket for text messages
-        if (user && replyToId) {
-          sendMessageSocket(activeConversation.id, content, type, replyToId!, {
-            id: user?.id,
-            username: user?.username,
-            avatar: user?.avatar,
-          });
+        if (user) {
+          sendMessageSocket(
+            activeConversation.id,
+            content,
+            type,
+            {
+              id: user?.id,
+              username: user?.username,
+              avatar: user?.avatar,
+            },
+            replyToId
+          );
         }
       }
-
       //* Stop typing
       setIsTyping(false);
       stopTypingSocket(activeConversation.id);

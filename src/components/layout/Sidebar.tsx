@@ -32,7 +32,7 @@ const AppSideBar = () => {
   }
   const links = [
     {
-      url: "/chat",
+      url: "/messages",
       icon: MessageCircle,
       index: 1,
       name: "Chat",
