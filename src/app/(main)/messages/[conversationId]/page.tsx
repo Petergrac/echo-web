@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { useChat } from "@/lib/hooks/useChat";
 import {
   useConversation,
+  useEditMessage,
   useLeaveConversation,
   useMessages,
 } from "@/lib/hooks/api/chat";
@@ -64,7 +65,12 @@ export default function ConversationPage() {
     useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [editMessage, setEditMessage] = useState<{
+    content: string;
+    messageId: string;
+  } | null>(null);
   const [replyToMessage, setReplyToMessage] = useState<ApiMessage | null>(null);
+  const editMessageMutation = useEditMessage(conversationId);
 
   //* Load conversation when page loads
   useEffect(() => {
@@ -80,10 +86,18 @@ export default function ConversationPage() {
   ]);
 
   if (isLoading || convLoading) {
-    return <div>Loading conversation</div>;
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p>Loading conversation...</p>
+      </div>
+    );
   }
   if (isError || convError) {
-    return <div className="">Error when loading messages</div>;
+    return (
+      <div className="h-screen flex items-center justify-center text-red-500">
+        Error when loading messages
+      </div>
+    );
   }
   //* Combine API messages with WebSocket messages
   const apiMessages = messagesData?.pages.flatMap((page) => page.items) || [];
@@ -100,8 +114,17 @@ export default function ConversationPage() {
   const typingUsers = getTypingUsers(conversationId);
 
   const handleSend = (content: string, file?: File) => {
-    sendMessage(content, "text", replyToMessage?.id, file);
-    setReplyToMessage(null);
+    if (editMessage) {
+      editMessageMutation.mutate({
+        content: content,
+        messageId: editMessage.messageId,
+      });
+      setEditMessage(null);
+      setReplyToMessage(null);
+    } else {
+      sendMessage(content, "text", replyToMessage?.id, file);
+      setReplyToMessage(null);
+    }
   };
 
   const handleLeaveConversation = () => {
@@ -270,6 +293,8 @@ export default function ConversationPage() {
                 <MessageBubble
                   key={message.id}
                   message={message}
+                  editMessage={setEditMessage}
+                  setReplyToMessage={setReplyToMessage}
                   isOwn={message.sender.id === user?.id}
                   showAvatar={showAvatar}
                 />
@@ -281,6 +306,9 @@ export default function ConversationPage() {
       </ScrollArea>
       {/* Message Input */}
       <MessageInput
+        key={editMessage?.messageId || "edit-message"}
+        editMessage={editMessage && editMessage.content}
+        setEditMessage={setEditMessage}
         conversationId={conversationId}
         onSend={handleSend}
         replyTo={replyToMessage}

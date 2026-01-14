@@ -3,6 +3,8 @@ import api from "../../api/axios";
 import { useUniversalInfiniteQuery } from "../useUniversalInfiniteQuery";
 import { ChatMessage, Conversation } from "@/types/chat";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 interface UpdateConversationType {
   name?: string;
@@ -154,7 +156,6 @@ export const useSendMessage = () => {
 
 export const useEditMessage = (conversationId: string) => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       messageId,
@@ -163,32 +164,55 @@ export const useEditMessage = (conversationId: string) => {
       messageId: string;
       content: string;
     }) => {
-      const response = await api.patch(`chat/messages/${messageId}`, {
-        content,
-      });
-      return response.data;
+      try {
+        const response = await api.patch(`chat/messages/${messageId}`, {
+          content,
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
     },
     onSuccess: () => {
+      toast.success("Message updated successfully");
       queryClient.invalidateQueries({
         queryKey: ["conversations", conversationId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["messages", conversationId],
+      });
+    },
+    onError: (error: AxiosError) => {
+      toast.error(error?.response?.data?.message);
     },
   });
 };
 
-export const useDeleteMessage = () => {
+export const useDeleteMessage = (conversationId: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       messageId,
+
       forEveryone = false,
     }: {
       messageId: string;
+      conversationId: string;
       forEveryone?: boolean;
     }) => {
       const response = await api.delete(`chat/messages/${messageId}`, {
         params: { forEveryone },
       });
       return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({
+        queryKey: ["messages", conversationId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["conversations", conversationId],
+      });
     },
   });
 };

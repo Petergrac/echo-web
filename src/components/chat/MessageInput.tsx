@@ -1,24 +1,32 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, SetStateAction, Dispatch } from "react";
 import { Button } from "@/components/ui/button";
-import { Paperclip, Send, X } from "lucide-react";
+import { Link, Paperclip, Send, X } from "lucide-react";
 import { useChat } from "@/lib/hooks/useChat";
 import { ApiMessage } from "@/types/chat";
 import AutoResizeTextarea from "../post/create-post/AutoResizeTextArea";
 
 interface MessageInputProps {
   conversationId: string;
+  editMessage: string | null;
   onSend: (content: string, file?: File) => void;
   replyTo: ApiMessage | null;
+  setEditMessage: Dispatch<
+    SetStateAction<{
+      content: string;
+      messageId: string;
+    } | null>
+  >;
   onCancelReply?: () => void;
 }
 
 export function MessageInput({
   onSend,
   replyTo,
+  editMessage,
   onCancelReply,
 }: MessageInputProps) {
   const { startTyping, stopTyping } = useChat();
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(editMessage || "");
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -115,7 +123,15 @@ export function MessageInput({
           </Button>
         </div>
       )}
-
+      {editMessage && (
+        <p className="mx-auto gap-2 px-4 flex items-center text-xs  py-2 bg-amber-600 font-bold text-black rounded-full w-fit">
+          <span>
+            <Link size={15} />
+          </span>
+          You cannot edit messages which are older than{" "}
+          <span className="text-sky-900">15</span>min.
+        </p>
+      )}
       <div className="flex items-end gap-2">
         <Button
           variant="ghost"

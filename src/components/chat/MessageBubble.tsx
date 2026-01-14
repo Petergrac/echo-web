@@ -2,15 +2,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Reply, ThumbsUp } from "lucide-react";
+import { MoreVertical, Pencil, Reply, ThumbsUp, Trash2 } from "lucide-react";
 import { useChat } from "@/lib/hooks/useChat";
 import Image from "next/image";
-import { ChatMessage } from "@/types/chat";
+import { ApiMessage, ChatMessage } from "@/types/chat";
 import EmojiPickerButton from "../post/create-post/EmojiPicker";
+import { Dispatch, SetStateAction } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { useDeleteMessage } from "@/lib/hooks/api/chat";
+import Link from "next/link";
 
 interface MessageBubbleProps {
   message: ChatMessage;
   isOwn: boolean;
+  setReplyToMessage?: Dispatch<SetStateAction<ApiMessage | null>>;
+  editMessage: Dispatch<
+    SetStateAction<{
+      content: string;
+      messageId: string;
+    } | null>
+  >;
   showAvatar: boolean;
 }
 
@@ -18,24 +34,32 @@ export function MessageBubble({
   message,
   isOwn,
   showAvatar,
+  setReplyToMessage,
+  editMessage,
 }: MessageBubbleProps) {
   const { addReaction } = useChat();
+  const deleteMessage = useDeleteMessage(message.conversationId);
 
   const handleReaction = (emoji: string) => {
     addReaction(message.id, emoji);
   };
 
-  const handleReply = () => {};
-
+  const handleReply = () => {
+    if (setReplyToMessage) {
+      setReplyToMessage(message as unknown as ApiMessage);
+    }
+  };
   return (
     <div
       className={cn("flex gap-3 mb-4", isOwn ? "flex-row-reverse" : "flex-row")}
     >
       {showAvatar && !isOwn && (
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={message.sender.avatar} />
-          <AvatarFallback>{message.sender.username.charAt(0)}</AvatarFallback>
-        </Avatar>
+        <Link href={`/${message.sender.username}`}>
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={message.sender.avatar} />
+            <AvatarFallback>{message.sender.username.charAt(0)}</AvatarFallback>
+          </Avatar>
+        </Link>
       )}
       {showAvatar && isOwn && <div className="w-8" />}
       <div
@@ -45,9 +69,12 @@ export function MessageBubble({
         )}
       >
         {showAvatar && (
-          <p className="text-xs text-muted-foreground mb-1">
+          <Link
+            href={`/${message.sender.username}`}
+            className="text-xs text-muted-foreground mb-1"
+          >
             {message.sender.username}
-          </p>
+          </Link>
         )}
         <div
           className={cn(
@@ -129,9 +156,41 @@ export function MessageBubble({
               onEmojiSelect={(emoji) => addReaction(message.id, emoji)}
             />
           </div>
-          <Button variant="ghost" size="icon" className="h-6 w-6">
-            <MoreVertical className="h-3 w-3" />
-          </Button>
+          {isOwn && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-6 w-6">
+                  <MoreVertical className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  className="text-red-500 text-xs"
+                  onClick={() =>
+                    deleteMessage.mutate({
+                      messageId: message.id,
+                      forEveryone: true,
+                      conversationId: message.conversationId,
+                    })
+                  }
+                >
+                  <Trash2 className="text-red-500" scale={0.5} />
+                  Delete
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    editMessage({
+                      content: message.content,
+                      messageId: message.id,
+                    })
+                  }
+                  className="text-xs"
+                >
+                  <Pencil /> Edit
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </div>
