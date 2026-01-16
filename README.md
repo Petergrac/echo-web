@@ -1,36 +1,178 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Echo Web
+
+Echo Web is the **Next.js frontend for Echo**, a social media platform powered by a NestJS backend. It connects with the `echo-backend` API to let users authenticate, explore feeds, create content, and interact with others in real time.
+
+This project is built with **Next.js (App Router)**, **TypeScript**, and **Tailwind CSS**, and is designed to be clean, fast, and scalable.
+
+---
+
+## Features
+
+- User authentication (login & signup)
+- Feed browsing and content interaction
+- Responsive UI for desktop and mobile
+- Modern React patterns with Next.js App Router
+- Tailwind CSS for styling
+
+---
+
+## Tech Stack
+
+- **Next.js** – framework for UI and routing
+- **React** – UI library
+- **TypeScript** – type safety
+- **Tailwind CSS** – utility-first styling
+- **Fetch / Axios** – backend API communication
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+Make sure you have:
+
+- Node.js (v16+ recommended)
+- pnpm, npm, or yarn
+- The Echo backend running
+
+---
+
+### Setup
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Petergrac/echo-web.git
+cd echo-web
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+# or npm install
+# or yarn
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Create an environment file:
 
-## Learn More
+```bash
+touch .env.local
+```
 
-To learn more about Next.js, take a look at the following resources:
+Add the backend API URL:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Replace the URL if your backend runs elsewhere.
 
-## Deploy on Vercel
+4. Start the development server:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm dev
+# or npm run dev
+# or yarn dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5. Open in your browser:
+
+```bash
+http://localhost:3000
+```
+
+---
+
+## Environment Variables
+
+| Variable            | Description                      |
+| ------------------- | -------------------------------- |
+| NEXT_PUBLIC_API_URL | Base URL of the Echo backend API |
+
+---
+
+## Project Structure
+
+```bash
+app/        # Next.js routes and layouts
+src/        # Components, hooks, utilities
+public/     # Static assets
+styles/     # Global styles
+```
+
+---
+
+## Backend Integration
+
+This frontend consumes the Echo backend API built with NestJS:
+
+[https://github.com/Petergrac/echo-backend](https://github.com/Petergrac/echo-backend)
+
+Make sure:
+
+- The backend is running
+- CORS allows requests from your frontend domain
+- The API URL is correctly set in `.env.local`
+
+The backend handles authentication, posts, likes, comments, notifications, and real-time features.
+
+---
+
+## Deployment
+
+You can deploy this project on platforms like:
+
+- Vercel
+- Netlify
+- Cloudflare Pages
+
+Steps:
+
+1. Push the repository to your hosting provider
+2. Set `NEXT_PUBLIC_API_URL` in environment variables
+3. Build command:
+
+```bash
+pnpm build
+```
+
+4. Start command:
+
+```bash
+pnpm start
+```
+
+---
+
+## Contributing
+
+Contributions are welcome.
+
+1. Fork the repository
+2. Create a new branch
+3. Commit your changes
+4. Open a pull request
+
+---
+
+## Troubleshooting
+
+If the app does not work as expected:
+
+- Confirm the backend is running
+- Check `.env.local` values
+- Inspect network requests in DevTools
+- Verify API endpoints still match the backend
+
+---
+
+## What you can add?
+There are some endpoints that i did not implement like.
+ - Post Update.
+ - Admin routes.
+
+## License
+
+MIT (or specify if different)

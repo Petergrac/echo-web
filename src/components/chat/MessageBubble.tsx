@@ -7,7 +7,7 @@ import { useChat } from "@/lib/hooks/useChat";
 import Image from "next/image";
 import { ChatMessage } from "@/types/chat";
 import EmojiPickerButton from "../post/create-post/EmojiPicker";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +40,7 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const { addReaction } = useChat();
   const deleteMessage = useDeleteMessage(message.conversationId);
+  const [previewImage, setPreviewImage] = useState(false);
 
   const handleReaction = (emoji: string) => {
     addReaction(message.id, emoji);
@@ -50,7 +51,6 @@ export function MessageBubble({
       setReplyToMessage(message as unknown as ChatMessage);
     }
   };
-  console.log(message);
   return (
     <div
       className={cn("flex gap-3 mb-4", isOwn ? "flex-row-reverse" : "flex-row")}
@@ -107,12 +107,26 @@ export function MessageBubble({
                 <Image
                   src={message.media.url}
                   alt="Message media"
+                  onClick={() => setPreviewImage(!previewImage)}
                   className="max-w-full max-h-80 object-cover cursor-pointer hover:opacity-90 transition"
                   width={400}
                   height={300}
                 />
               )}
-
+              {previewImage && message.media.type.startsWith("image/") && (
+                <div
+                  className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                  onClick={() => setPreviewImage(!previewImage)}
+                >
+                  <Image
+                    src={message.media.url}
+                    alt="Preview"
+                    className="max-w-full max-h-full"
+                    width={800}
+                    height={600}
+                  />
+                </div>
+              )}
               {/* VIDEO */}
               {message.media.type.startsWith("video/") && (
                 <video controls className="max-w-full max-h-80 rounded-lg">
