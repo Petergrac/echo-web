@@ -21,7 +21,7 @@ export interface ApiParticipant {
 
 export interface ApiConversation {
   id: string;
-  type: "DIRECT" | "GROUP";
+  type: "direct" | "group";
   name?: string;
   avatar?: string;
   messageCount: number;

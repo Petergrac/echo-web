@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useSearch } from "@/lib/hooks/useSearch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,7 +29,31 @@ import Image from "next/image";
 import Link from "next/link";
 import BackBar from "@/components/post/post-detail/Back-Bar";
 
+import { Suspense } from "react";
+
 export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchLoader />}>
+      <SearchResults />
+    </Suspense>
+  );
+}
+
+function SearchLoader() {
+  return (
+    <div className="container w-full sm:w-150 mt-15 mx-auto p-4 space-y-6">
+      <Skeleton className="h-10 w-48" />
+      <Skeleton className="h-12 w-full" />
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <Skeleton key={i} className="h-24 w-full" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SearchResults() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(q);
@@ -62,7 +86,7 @@ export default function SearchPage() {
 
   const handleFilterChange = (
     key: keyof typeof filters,
-    value: string | number
+    value: string | number,
   ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
     //* Refetch with new filters after a short delay

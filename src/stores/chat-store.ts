@@ -51,7 +51,7 @@ interface ChatState {
   updateMessage: (
     conversationId: string,
     messageId: string,
-    updates: Partial<ChatMessage>
+    updates: Partial<ChatMessage>,
   ) => void;
   removeMessage: (conversationId: string, messageId: string) => void;
   clearMessages: (conversationId: string) => void;
@@ -61,7 +61,7 @@ interface ChatState {
     conversationId: string,
     userId: string,
     username: string,
-    typing: boolean
+    typing: boolean,
   ) => void;
   clearTyping: (conversationId: string) => void;
 
@@ -81,7 +81,7 @@ interface ChatState {
       username: string;
       avatar?: string;
     },
-    replyTo: ChatMessage | null
+    replyTo: ChatMessage | null,
   ) => void;
   startTyping: (conversationId: string) => void;
   stopTyping: (conversationId: string) => void;
@@ -103,7 +103,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
   initializeChatSocket: () => {
     const currentSocket = get().socket;
     if (currentSocket?.connected) {
-      console.log("Chat socket already connected");
       return;
     }
 
@@ -111,21 +110,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     //* Connection events
     socket.on("connect", () => {
-      console.log("🔗 Chat WebSocket connected");
       set({ isConnected: true });
     });
 
     socket.on("disconnect", () => {
-      console.log("🔴 Chat WebSocket disconnected");
       set({ isConnected: false });
-    });
-
-    socket.on("connected", (data) => {
-      console.log("Chat socket authenticated:", data);
-    });
-
-    socket.on("joined_conversation", (data) => {
-      console.log("Joined conversation:", data.conversationId);
     });
 
     socket.on("new_message", (data) => {
@@ -138,7 +127,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       //* Update conversation last message
       const conversations = get().conversations;
       const conversationIndex = conversations.findIndex(
-        (c) => c.id === conversationId
+        (c) => c.id === conversationId,
       );
 
       if (conversationIndex > -1) {
@@ -157,9 +146,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
             state.conversations.sort(
               (a, b) =>
                 new Date(b.lastMessageAt).getTime() -
-                new Date(a.lastMessageAt).getTime()
+                new Date(a.lastMessageAt).getTime(),
             );
-          })
+          }),
         );
       }
 
@@ -174,8 +163,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
 
     socket.on("message_notification", (data) => {
-      console.log("Message notification:", data);
-      // You can show a different notification style here
+      toast.info("New message", {
+        description: `${data.senderUsername}: ${data.content.substring(0, 50)}...`,
+      });
     });
 
     socket.on("user_typing", (data) => {
@@ -183,7 +173,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         data.conversationId,
         data.userId,
         data.username,
-        data.typing
+        data.typing,
       );
     });
 
@@ -194,7 +184,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           produce((state: ChatState) => {
             const messages = state.messages.get(conversationId) || [];
             const messageIndex = messages.findIndex(
-              (m) => m.id === data.messageId
+              (m) => m.id === data.messageId,
             );
 
             if (messageIndex > -1) {
@@ -210,7 +200,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                   !(
                     r.userId === data.reaction!.userId &&
                     r.emoji === data.reaction!.emoji
-                  )
+                  ),
               );
 
               //* Add new reaction
@@ -221,7 +211,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 reactedAt: data.reaction.reactedAt,
               });
             }
-          })
+          }),
         );
       }
     });
@@ -233,17 +223,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
           produce((state: ChatState) => {
             const messages = state.messages.get(conversationId) || [];
             const messageIndex = messages.findIndex(
-              (m) => m.id === data.messageId
+              (m) => m.id === data.messageId,
             );
 
             if (messageIndex > -1 && messages[messageIndex].reactions) {
               messages[messageIndex].reactions = messages[
                 messageIndex
               ].reactions!.filter(
-                (r) => !(r.userId === data.userId && r.emoji === data.emoji)
+                (r) => !(r.userId === data.userId && r.emoji === data.emoji),
               );
             }
-          })
+          }),
         );
       }
     });
@@ -265,7 +255,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 }
               }
             });
-          })
+          }),
         );
       }
     });
@@ -287,6 +277,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     set({ socket });
   },
+
   disconnectSocket: () => {
     const { socket } = get();
     if (socket) {
@@ -304,7 +295,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set(
       produce((state: ChatState) => {
         const index = state.conversations.findIndex(
-          (c) => c.id === conversation.id
+          (c) => c.id === conversation.id,
         );
         if (index > -1) {
           state.conversations[index] = conversation;
@@ -316,9 +307,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         state.conversations.sort(
           (a, b) =>
             new Date(b.lastMessageAt).getTime() -
-            new Date(a.lastMessageAt).getTime()
+            new Date(a.lastMessageAt).getTime(),
         );
-      })
+      }),
     );
   },
 
@@ -330,12 +321,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set(
         produce((state: ChatState) => {
           const convIndex = state.conversations.findIndex(
-            (c) => c.id === conversation.id
+            (c) => c.id === conversation.id,
           );
           if (convIndex > -1) {
             state.conversations[convIndex].unreadCount = 0;
           }
-        })
+        }),
       );
     }
   },
@@ -362,7 +353,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           (m) =>
             m.isSending &&
             m.content === message.content &&
-            m.sender.id === message.sender.id
+            m.sender.id === message.sender.id,
         );
 
         if (optimisticIndex > -1) {
@@ -378,9 +369,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         //* Keep messages sorted
         messages.sort(
           (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
         );
-      })
+      }),
     );
   },
 
@@ -394,7 +385,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             messages[index] = { ...messages[index], ...updates };
           }
         }
-      })
+      }),
     );
   },
 
@@ -408,7 +399,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             messages.splice(index, 1);
           }
         }
-      })
+      }),
     );
   },
 
@@ -416,7 +407,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set(
       produce((state: ChatState) => {
         state.messages.delete(conversationId);
-      })
+      }),
     );
   },
 
@@ -450,7 +441,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         } else if (existingIndex > -1) {
           typingList.splice(existingIndex, 1);
         }
-      })
+      }),
     );
   },
 
@@ -458,7 +449,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set(
       produce((state: ChatState) => {
         state.typingUsers.delete(conversationId);
-      })
+      }),
     );
   },
 
@@ -466,7 +457,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
   getOnlineUsers: () => {
     const { socket } = get();
     if (socket) {
-      console.log("Requested online users");
       socket.emit("get_online_users");
     }
   },
@@ -475,7 +465,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set(
       produce((state: ChatState) => {
         state.onlineUsers.add(userId);
-      })
+      }),
     );
   },
 
@@ -483,7 +473,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set(
       produce((state: ChatState) => {
         state.onlineUsers.delete(userId);
-      })
+      }),
     );
   },
 
@@ -493,7 +483,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     content,
     type: ChatType = "text",
     sender,
-    replyTo
+    replyTo,
   ) => {
     const tempId = `temp-${Date.now()}`;
 

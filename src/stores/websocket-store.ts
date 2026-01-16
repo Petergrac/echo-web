@@ -40,7 +40,6 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
   initializeSocket: () => {
     const currentSocket = get().socket;
     if (currentSocket?.connected) {
-      console.log("Socket already connected");
       return;
     }
 
@@ -48,12 +47,10 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
 
     //* Connection events
     socket.on("connect", () => {
-      console.log("🔗 WebSocket connected");
       set({ isConnected: true });
     });
 
     socket.on("disconnect", () => {
-      console.log("🔴 WebSocket disconnected");
       set({ isConnected: false });
     });
     socket.on("new_notification", (notification: Notification) => {
@@ -93,13 +90,11 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
 
     //* Your backend sends unread_count
     socket.on("unread_count", (data: { count: number }) => {
-      console.log("Unread count updated:", data.count);
       set({ unreadCount: data.count });
     });
 
     //* When user marks as read via WebSocket
     socket.on("notification_marked_as_read", (notification: Notification) => {
-      console.log("Notification marked as read:", notification.id);
       set(
         produce((state: WebSocketState) => {
           const index = state.notifications.findIndex(
@@ -117,7 +112,6 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     });
 
     socket.on("mark_all_as_read", () => {
-      console.log("All notifications marked as read");
       set(
         produce((state: WebSocketState) => {
           state.notifications = state.notifications.map((n) => ({

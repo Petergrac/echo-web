@@ -4,8 +4,6 @@ import { useUniversalInfiniteQuery } from "../useUniversalInfiniteQuery";
 import { ChatMessage, Conversation } from "@/types/chat";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AxiosError } from "axios";
-
 interface UpdateConversationType {
   name?: string;
   avatar?: string;
@@ -17,7 +15,7 @@ export const useConversations = (page = 1, limit = 50) => {
     queryKey: ["conversations", page, limit],
     queryFn: async () => {
       const response = await api.get(
-        `chat/conversations?page=${page}&limit=${limit}`
+        `chat/conversations?page=${page}&limit=${limit}`,
       );
       return response.data;
     },
@@ -107,7 +105,7 @@ export const useMessages = (conversationId: string, limit = 50) => {
     limit,
     {
       enabled: !!conversationId,
-    }
+    },
   );
 };
 
@@ -141,7 +139,7 @@ export const useSendMessage = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
       return response.data;
     },
@@ -182,7 +180,7 @@ export const useEditMessage = (conversationId: string) => {
         queryKey: ["messages", conversationId],
       });
     },
-    onError: (error: AxiosError) => {
+    onError: (error: { response: { data: { message: string } } }) => {
       toast.error(error?.response?.data?.message);
     },
   });
@@ -245,7 +243,7 @@ export const useMarkAsRead = () => {
     }) => {
       const response = await api.post(
         `chat/conversations/${conversationId}/read`,
-        { messageIds }
+        { messageIds },
       );
       return response.data;
     },

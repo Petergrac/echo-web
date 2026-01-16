@@ -49,6 +49,17 @@ export interface ChatWebSocketEventMap {
   user_joined: { conversationId: string; user: ApiUser };
   user_left: { conversationId: string; userId: string };
   error: { message: string };
+
+  join_conversation: { conversationId: string };
+  leave_conversation: { conversationId: string };
+  send_message: {
+    conversationId: string;
+    message: { content: string; type?: string; replyToId?: string };
+  };
+  typing_start: { conversationId: string };
+  typing_stop: { conversationId: string };
+  add_reaction: { messageId: string; emoji: string };
+  mark_read: { conversationId: string; messageIds: string[] };
 }
 
 //* 1. Initialize chat socket
@@ -84,7 +95,7 @@ export const disconnectChatSocket = (): void => {
 //* 4. Helper to emit chat events
 export const emitChatEvent = <T extends keyof ChatWebSocketEventMap>(
   event: T,
-  data: ChatWebSocketEventMap[T]
+  data: ChatWebSocketEventMap[T],
 ): void => {
   if (chatSocket?.connected) {
     chatSocket.emit(event, data);
@@ -108,7 +119,7 @@ export const sendChatMessage = (
     content: string;
     type?: string;
     replyToId?: string;
-  }
+  },
 ): void => {
   emitChatEvent("send_message", { conversationId, message });
 };
@@ -130,7 +141,7 @@ export const addReaction = (messageId: string, emoji: string): void => {
 //* 10. Mark messages as read
 export const markMessagesAsRead = (
   conversationId: string,
-  messageIds: string[]
+  messageIds: string[],
 ): void => {
   emitChatEvent("mark_read", { conversationId, messageIds });
 };

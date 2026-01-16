@@ -1,4 +1,3 @@
-// @ts-expect-error - there is a css error
 import "../globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";

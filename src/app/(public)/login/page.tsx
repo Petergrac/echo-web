@@ -66,7 +66,6 @@ const LoginPage = () => {
       router.push("/feed");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(error);
       if (error.response?.data?.message instanceof Array) {
         setStatus({ ...errorStatus, emailError: true });
         setEmError(error.response.data.message[0]);

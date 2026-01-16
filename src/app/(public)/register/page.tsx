@@ -15,8 +15,12 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-const errorMap: Record<string, { field: keyof SignupErrorsState; message: string }> = {
+const errorMap: Record<
+  string,
+  { field: keyof SignupErrorsState; message: string }
+> = {
   "Please provide a valid email": {
     field: "email",
     message: "Please provide valid email",
@@ -25,10 +29,11 @@ const errorMap: Record<string, { field: keyof SignupErrorsState; message: string
     field: "password",
     message: "Password must be 8 characters long",
   },
-  "Password too weak - must contain uppercase, lowercase, and number/special char": {
-    field: "password",
-    message: "Password too weak, combine numbers & special characters",
-  },
+  "Password too weak - must contain uppercase, lowercase, and number/special char":
+    {
+      field: "password",
+      message: "Password too weak, combine numbers & special characters",
+    },
   "Username can only contain letters, numbers, underscore and hyphen": {
     field: "username",
     message: "Username can only contain letters,numbers,_,-",
@@ -66,7 +71,7 @@ interface SignupErrorsState {
 const SignUpPage = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  
+
   //* Signup details
   const [userDetails, setUserDetails] = useState<UserDetails>({
     username: "",
@@ -91,7 +96,6 @@ const SignUpPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
 
-
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -104,7 +108,7 @@ const SignUpPage = () => {
       setIsLoading(false);
       return;
     }
-    
+
     // Clear previous errors
     setSignupErrors({
       username: "",
@@ -121,8 +125,6 @@ const SignUpPage = () => {
       // Redirect on success
       router.push("/login?signup=success");
     } catch (error: any) {
-      console.log(error);
-      
       if (error.response?.status === 409) {
         if (error.response.data.message === "username already exists") {
           setSignupErrors({
@@ -137,7 +139,7 @@ const SignUpPage = () => {
           return;
         }
       }
-      
+
       if (error.response?.data?.message instanceof Array) {
         const verror = error.response.data.message as string[];
         const newErrors: SignupErrorsState = {
@@ -147,7 +149,7 @@ const SignUpPage = () => {
           firstName: "",
           lastName: "",
         };
-        
+
         verror.forEach((errorMessage) => {
           // Find exact match
           for (const [key, value] of Object.entries(errorMap)) {
@@ -157,7 +159,7 @@ const SignUpPage = () => {
             }
           }
         });
-        
+
         setSignupErrors(newErrors);
       }
     } finally {
@@ -394,7 +396,9 @@ const SignUpPage = () => {
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-3.5 text-slate-400 hover:text-white transition-colors"
-                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -410,19 +414,19 @@ const SignUpPage = () => {
               <Switch id="terms" />
               <label htmlFor="terms" className="text-sm text-slate-300">
                 I agree to the{" "}
-                <a
+                <Link
                   href="/terms"
                   className="text-cyan-400 hover:text-cyan-300 transition-colors"
                 >
                   Terms of Service
-                </a>{" "}
+                </Link>{" "}
                 and{" "}
-                <a
+                <Link
                   href="/privacy"
                   className="text-cyan-400 hover:text-cyan-300 transition-colors"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </label>
             </div>
 
@@ -457,12 +461,12 @@ const SignUpPage = () => {
         <div className="text-center mt-8 space-y-4">
           <p className="text-slate-300">
             Already have an account?{" "}
-            <a
+            <Link
               href="/login"
               className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
             >
               Log in here
-            </a>
+            </Link>
           </p>
 
           {/* Get App Button */}

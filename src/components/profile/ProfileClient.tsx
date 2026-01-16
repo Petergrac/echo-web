@@ -14,7 +14,6 @@ interface Props {
 export default function ProfileClient({ username, children }: Props) {
   const { data: user, isLoading, isError, error } = useProfile(username);
   const pathName = usePathname();
-  console.log(username);
   const href = [`/${username}/followers`, `/${username}/following`];
   if (isLoading && href.includes(pathName)) return <ProfileLoader />;
 
@@ -31,12 +30,7 @@ export default function ProfileClient({ username, children }: Props) {
       </div>
     );
 
-  if (!user)
-    return (
-      <div className="py-10 text-red-500 text-center">
-        There is no user.Try to log out or refresh user on the left bar
-      </div>
-    );
+  if (!user) return null;
 
   return (
     <>
