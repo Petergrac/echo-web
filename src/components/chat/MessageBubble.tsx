@@ -16,6 +16,7 @@ import {
 } from "../ui/dropdown-menu";
 import { useDeleteMessage } from "@/lib/hooks/api/chat";
 import Link from "next/link";
+import { AudioPlayer } from "./AudioPlayer";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -49,7 +50,7 @@ export function MessageBubble({
       setReplyToMessage(message as unknown as ChatMessage);
     }
   };
-  console.log(message)
+  console.log(message);
   return (
     <div
       className={cn("flex gap-3 mb-4", isOwn ? "flex-row-reverse" : "flex-row")}
@@ -99,17 +100,67 @@ export function MessageBubble({
             )}
             <p className="whitespace-pre-wrap">{message.content}</p>
           </div>
-          {message.media?.type.startsWith("image/") && (
-            <div className="mt-2">
-              <Image
-                src={message.media.url}
-                alt="Message media"
-                className="rounded-lg max-w-full max-h-64 object-cover"
-                width={256}
-                height={256}
-              />
+          {message.media && (
+            <div className="mt-2 overflow-hidden rounded-lg">
+              {/* IMAGES */}
+              {message.media.type.startsWith("image/") && (
+                <Image
+                  src={message.media.url}
+                  alt="Message media"
+                  className="max-w-full max-h-80 object-cover cursor-pointer hover:opacity-90 transition"
+                  width={400}
+                  height={300}
+                />
+              )}
+
+              {/* VIDEO */}
+              {message.media.type.startsWith("video/") && (
+                <video controls className="max-w-full max-h-80 rounded-lg">
+                  <source src={message.media.url} type={message.media.type} />
+                  Your browser does not support the video tag.
+                </video>
+              )}
+
+              {/* AUDIO */}
+              {message.media?.type.startsWith("audio/") && (
+                <div className="mt-2">
+                  <AudioPlayer src={message.media.url} isOwn={isOwn} />
+                </div>
+              )}
+
+              {/* DOCUMENTS (PDF, DOC, etc.) */}
+              {(message.media.type === "application/pdf" ||
+                message.media.type.includes("msword") ||
+                message.media.type.includes("officedocument")) && (
+                <a
+                  href={message.media.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-md border",
+                    isOwn
+                      ? "bg-primary-foreground/10 border-primary-foreground/20"
+                      : "bg-background border-muted-foreground/20"
+                  )}
+                >
+                  <div className="p-2 bg-red-500 rounded text-white">
+                    <span className="text-[10px] font-bold uppercase">
+                      {message.media.type.split("/")[1]?.slice(0, 3) || "DOC"}
+                    </span>
+                  </div>
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="text-sm font-medium truncate max-w-[150px]">
+                      View Document
+                    </span>
+                    <span className="text-[10px] opacity-70">
+                      Click to open
+                    </span>
+                  </div>
+                </a>
+              )}
             </div>
           )}
+
           <div className="flex items-center justify-between mt-1 gap-4">
             <span className="text-xs opacity-70">
               {format(new Date(message.createdAt), "HH:mm")}
