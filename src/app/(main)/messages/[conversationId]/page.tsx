@@ -31,7 +31,7 @@ import {
 import InfiniteScrollTrigger from "@/components/shared/infiniteScrollTrigger";
 import { useCurrentUser } from "@/stores/useStore";
 import { useChatStore } from "@/stores/chat-store";
-import { ApiMessage } from "@/types/chat";
+import { ChatMessage } from "@/types/chat";
 
 export default function ConversationPage() {
   const params = useParams();
@@ -69,7 +69,7 @@ export default function ConversationPage() {
     content: string;
     messageId: string;
   } | null>(null);
-  const [replyToMessage, setReplyToMessage] = useState<ApiMessage | null>(null);
+  const [replyToMessage, setReplyToMessage] = useState<ChatMessage | null>(null);
   const editMessageMutation = useEditMessage(conversationId);
 
   //* Load conversation when page loads
@@ -122,7 +122,7 @@ export default function ConversationPage() {
       setEditMessage(null);
       setReplyToMessage(null);
     } else {
-      sendMessage(content, "text", replyToMessage?.id, file);
+      sendMessage(content, "text", replyToMessage, file);
       setReplyToMessage(null);
     }
   };

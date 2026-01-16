@@ -1,7 +1,7 @@
 import { useChatStore } from "@/stores/chat-store";
 import { useEffect, useCallback, useRef, useState } from "react";
 import { useConversations, useSendMessage } from "./api/chat";
-import { ChatType, Conversation } from "@/types/chat";
+import { ChatMessage, ChatType, Conversation } from "@/types/chat";
 import { useCurrentUser } from "@/stores/useStore";
 
 export const useChat = () => {
@@ -87,7 +87,7 @@ export const useChat = () => {
     async (
       content: string,
       type: ChatType = "text",
-      replyToId?: string,
+      replyTo: ChatMessage | null,
       file?: File
     ) => {
       if (!activeConversation) return;
@@ -99,7 +99,7 @@ export const useChat = () => {
             conversationId: activeConversation.id,
             content,
             type,
-            replyToId,
+            replyToId: replyTo?.id,
             file,
           });
         } catch (error) {
@@ -117,7 +117,7 @@ export const useChat = () => {
               username: user?.username,
               avatar: user?.avatar,
             },
-            replyToId
+            replyTo
           );
         }
       }

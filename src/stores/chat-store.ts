@@ -81,7 +81,7 @@ interface ChatState {
       username: string;
       avatar?: string;
     },
-    replyToId?: string
+    replyTo: ChatMessage | null
   ) => void;
   startTyping: (conversationId: string) => void;
   stopTyping: (conversationId: string) => void;
@@ -493,7 +493,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     content,
     type: ChatType = "text",
     sender,
-    replyToId
+    replyTo
   ) => {
     const tempId = `temp-${Date.now()}`;
 
@@ -502,12 +502,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
       id: tempId,
       content,
       type: type,
+      status: "sent",
       sender: {
         id: sender.id,
         avatar: sender.avatar,
         username: sender.username,
       },
       conversationId,
+      replyTo: replyTo,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       reactions: [],
@@ -515,6 +517,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       isSending: true,
     });
 
+    const replyToId = replyTo ? replyTo.id : undefined;
     //* Send via socket
     sendChatMessage(conversationId, { content, type, replyToId });
 
@@ -531,7 +534,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           isSending: false,
         });
       }
-    }, 5000);
+    }, 20000);
   },
 
   startTyping: (conversationId) => {

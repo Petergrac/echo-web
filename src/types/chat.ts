@@ -55,7 +55,7 @@ export interface ApiMessage {
   conversationId: string;
   sender: ApiUser;
   replyTo?: ApiMessage;
-  media?: string;
+  media?: MediaInfo;
   reactions: ApiReaction[];
   readReceipts: ApiReadReceipt[];
   metadata?: Record<string, object>;
@@ -64,11 +64,19 @@ export interface ApiMessage {
   deletedForUserAt?: string;
   deletedForUserId?: string;
 }
-
+export interface MediaInfo{
+  url: string;
+  type: string;
+  size: number;
+  width: number;
+  height: number;
+  fileSize: number;
+}
 export interface ChatMessage {
   id: string;
   content: string;
   type: ChatType;
+  status: "sent" | "delivered" | "read";
   sender: {
     id: string;
     username: string;
@@ -77,8 +85,9 @@ export interface ChatMessage {
   conversationId: string;
   createdAt: string;
   updatedAt?: string;
+  replyTo: ChatMessage | null;
   reactions: MessageReaction[];
-  media?: string;
+  media?: MediaInfo;
   readBy: string[];
   isSending?: boolean;
   isError?: boolean;

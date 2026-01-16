@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical, Pencil, Reply, ThumbsUp, Trash2 } from "lucide-react";
 import { useChat } from "@/lib/hooks/useChat";
 import Image from "next/image";
-import { ApiMessage, ChatMessage } from "@/types/chat";
+import { ChatMessage } from "@/types/chat";
 import EmojiPickerButton from "../post/create-post/EmojiPicker";
 import { Dispatch, SetStateAction } from "react";
 import {
@@ -20,7 +20,7 @@ import Link from "next/link";
 interface MessageBubbleProps {
   message: ChatMessage;
   isOwn: boolean;
-  setReplyToMessage?: Dispatch<SetStateAction<ApiMessage | null>>;
+  setReplyToMessage?: Dispatch<SetStateAction<ChatMessage | null>>;
   editMessage: Dispatch<
     SetStateAction<{
       content: string;
@@ -46,9 +46,10 @@ export function MessageBubble({
 
   const handleReply = () => {
     if (setReplyToMessage) {
-      setReplyToMessage(message as unknown as ApiMessage);
+      setReplyToMessage(message as unknown as ChatMessage);
     }
   };
+  console.log(message)
   return (
     <div
       className={cn("flex gap-3 mb-4", isOwn ? "flex-row-reverse" : "flex-row")}
@@ -61,7 +62,6 @@ export function MessageBubble({
           </Avatar>
         </Link>
       )}
-      {showAvatar && isOwn && <div className="w-8" />}
       <div
         className={cn(
           "flex flex-col max-w-[70%]",
@@ -84,23 +84,25 @@ export function MessageBubble({
               : "bg-muted rounded-tl-none"
           )}
         >
-          <div
-            className={cn(
-              "border-l-2 pl-2 mb-2 text-sm",
-              isOwn
-                ? "border-primary-foreground/30"
-                : "border-muted-foreground/30"
+          <div className="flex flex-col">
+            {message.replyTo && (
+              <div className="border-l-2 pl-2 mb-2 border-muted/50 opacity-50">
+                <p className="font-medium">
+                  {message.replyTo.sender.username === message.sender.username
+                    ? "You"
+                    : message.replyTo.sender.username}
+                </p>
+                <p className="whitespace-pre-wrap">
+                  {message.replyTo?.content}
+                </p>
+              </div>
             )}
-          >
-            <p className="font-medium">{message.sender.username}</p>
+            <p className="whitespace-pre-wrap">{message.content}</p>
           </div>
-
-          <p className="whitespace-pre-wrap">{message.content}</p>
-
-          {message.media && (
+          {message.media?.type.startsWith("image/") && (
             <div className="mt-2">
               <Image
-                src={message.media}
+                src={message.media.url}
                 alt="Message media"
                 className="rounded-lg max-w-full max-h-64 object-cover"
                 width={256}
@@ -108,14 +110,12 @@ export function MessageBubble({
               />
             </div>
           )}
-
           <div className="flex items-center justify-between mt-1 gap-4">
             <span className="text-xs opacity-70">
               {format(new Date(message.createdAt), "HH:mm")}
               {message.isSending && " • Sending..."}
               {message.isError && " • Failed"}
             </span>
-
             <div className="flex items-center gap-1">
               {message.reactions?.map((reaction, index) => (
                 <span

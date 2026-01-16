@@ -2,14 +2,14 @@ import { useState, useRef, useEffect, SetStateAction, Dispatch } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, Paperclip, Send, X } from "lucide-react";
 import { useChat } from "@/lib/hooks/useChat";
-import { ApiMessage } from "@/types/chat";
+import { ChatMessage } from "@/types/chat";
 import AutoResizeTextarea from "../post/create-post/AutoResizeTextArea";
 
 interface MessageInputProps {
   conversationId: string;
   editMessage: string | null;
   onSend: (content: string, file?: File) => void;
-  replyTo: ApiMessage | null;
+  replyTo: ChatMessage | null;
   setEditMessage: Dispatch<
     SetStateAction<{
       content: string;
@@ -132,7 +132,7 @@ export function MessageInput({
           <span className="text-sky-900">15</span>min.
         </p>
       )}
-      <div className="flex items-end gap-2">
+      <div className="flex items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
