@@ -5,6 +5,7 @@ import type { Notification } from "@/types/notification";
 import { initializeSocket, disconnectSocket } from "@/lib/websocket/socket";
 import { toast } from "sonner";
 import React from "react";
+import { soundManager } from "@/lib/sound";
 export interface WebSocketState {
   //* 1.State
   socket: Socket | null;
@@ -13,6 +14,8 @@ export interface WebSocketState {
   notifications: Notification[];
   unreadCount: number;
   accessToken: string;
+  soundEnabled: boolean;
+  vibrationEnabled: boolean;
 
   //* Actions
   setAccessToken: (token: string) => void;
@@ -28,6 +31,7 @@ export interface WebSocketState {
   clearNotifications: () => void;
   addNotification: (notification: Notification) => void;
   setUnreadCount: (count: number) => void;
+  setSoundSettings: (soundEnabled: boolean, vibrationEnabled: boolean) => void;
 }
 
 export const useWebSocketStore = create<WebSocketState>((set, get) => ({
@@ -38,6 +42,8 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
   notifications: [],
   unreadCount: 0,
   accessToken: "",
+  soundEnabled: true,
+  vibrationEnabled: true,
 
   //* Actions
   setAccessToken: (accessToken: string) => {
@@ -50,6 +56,9 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     } else {
       get().initializeSocket();
     }
+  },
+  setSoundSettings: (soundEnabled: boolean, vibrationEnabled: boolean) => {
+    set({ soundEnabled, vibrationEnabled });
   },
 
   initializeSocket: () => {
@@ -71,6 +80,15 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
       console.log("WebSocket disconnected");
       set({ isConnected: false });
     });
+    socket.on(
+      "sound_settings",
+      (data: { soundEnabled: boolean; vibrationEnabled: boolean }) => {
+        set({
+          soundEnabled: data.soundEnabled,
+          vibrationEnabled: data.vibrationEnabled,
+        });
+      },
+    );
     socket.on("new_notification", (notification: Notification) => {
       set(
         produce((state: WebSocketState) => {
@@ -81,6 +99,10 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
           }
         }),
       );
+      const soundEnabled = get().soundEnabled;
+      if (soundEnabled) {
+        soundManager.play("./notification-sound.wav", 1);
+      }
       const notificationTitle = getNotificationTitle(notification);
       toast.success(notificationTitle, {
         description: getNotificationBody(notification),

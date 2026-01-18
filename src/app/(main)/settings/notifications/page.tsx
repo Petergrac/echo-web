@@ -5,6 +5,7 @@ import NotificationPreferencesSummary from "@/components/notifications/Notificat
 import BackBar from "@/components/post/post-detail/Back-Bar";
 import api from "@/lib/api/axios";
 import { useUniversalStore } from "@/stores/universalStore";
+import { useWebSocketStore } from "@/stores/websocket-store";
 import { NotPrefDto } from "@/types/notification";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 export default function SettingsPage() {
   const queryClient = useQueryClient();
   const { setMutedUsers } = useUniversalStore();
+  const { setSoundSettings } = useWebSocketStore();
   const { data, isLoading, isError } = useQuery<NotPrefDto>({
     queryKey: ["user-preferences"],
     queryFn: async () => {
@@ -50,6 +52,7 @@ export default function SettingsPage() {
     );
   const handleSave = async (data: NotPrefDto) => {
     const { userId, posts, id, ...filteredData } = data;
+    setSoundSettings(data.soundEnabled, data.vibrationEnabled);
     notificationMutation.mutate(filteredData as NotPrefDto);
   };
   return (

@@ -17,6 +17,8 @@ import {
 import { toast } from "sonner";
 import { ChatMessage, ChatType, Conversation } from "@/types/chat";
 import { mapMessage } from "@/lib/mapper";
+import { soundManager } from "@/lib/sound";
+import { useWebSocketStore } from "./websocket-store";
 
 export interface UserTyping {
   userId: string;
@@ -138,7 +140,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     socket.on("new_message", (data) => {
       const chatMessage = mapMessage(data.message);
       const conversationId = data.conversationId;
-      console.log(chatMessage)
       //* Add message to store
       get().addMessage(conversationId, chatMessage);
 
@@ -172,6 +173,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       //* Show notification if not in active conversation
       if (get().activeConversation?.id !== conversationId) {
+        const { soundEnabled, vibrationEnabled } = useWebSocketStore.getState();
+        if (soundEnabled) {
+          soundManager.play("./bubble-up.wav", 1);
+        }
+        if (vibrationEnabled) {
+          navigator.vibrate(200);
+        }
         toast.info("New message", {
           description: `${
             chatMessage.sender.username
