@@ -51,7 +51,7 @@ const LeftBar = () => {
   async function handleLogout() {
     logout();
     //* Logout from the server
-    await api.get("/auth/logout");
+    await api.post("/auth/logout");
     //* Redirect user to login page
     router.replace("/login");
   }

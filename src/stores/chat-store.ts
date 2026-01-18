@@ -126,19 +126,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     //* Connection events
     socket.on("connect", () => {
-      console.log("Chat WebSocket Connected")
+      console.log("Chat WebSocket Connected");
       set({ isConnected: true });
     });
 
     socket.on("disconnect", () => {
-      console.log("Chat WebSocket Disconnected")
+      console.log("Chat WebSocket Disconnected");
       set({ isConnected: false });
     });
 
     socket.on("new_message", (data) => {
       const chatMessage = mapMessage(data.message);
       const conversationId = data.conversationId;
-
+      console.log(chatMessage)
       //* Add message to store
       get().addMessage(conversationId, chatMessage);
 
@@ -180,9 +180,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
     });
 
-    socket.on("message_notification", (data) => {
+    socket.on("message_notification", (data: { message: ChatMessage }) => {
       toast.info("New message", {
-        description: `${data.senderUsername}: ${data.content.substring(0, 50)}...`,
+        description: `${data.message.sender.username}: ${data.message.content.substring(0, 50)}...`,
       });
     });
 
@@ -504,7 +504,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     replyTo,
   ) => {
     const tempId = `temp-${Date.now()}`;
-
+    console.log("Sending message:", {
+      conversationId,
+      content,
+      type,
+      sender,
+      replyTo,
+    });
     //* Optimistic update
     get().addMessage(conversationId, {
       id: tempId,

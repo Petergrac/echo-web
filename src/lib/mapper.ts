@@ -35,25 +35,25 @@ export function mapConversation(api: ApiConversation): Conversation {
 
 export function mapMessage(api: ApiMessage): ChatMessage {
   return {
-  id: api.id,
-  content: api.content,
-  type: api.type,
-  conversationId: api.conversationId,
-  createdAt: api.createdAt,
-  updatedAt: api.updatedAt,
-  status: api.status,
-  sender: {
-    id: api.sender.id,
-    username: api.sender.username,
-    avatar: api.sender.avatar,
-  },
-  reactions: api.reactions.map((r) => ({
-    id: r.id,
-    emoji: r.emoji,
-    userId: r.userId,
-    reactedAt: r.reactedAt,
-  })),
-  readBy: api.readReceipts.map((r) => r.userId),
-  replyTo: api.replyTo ? mapMessage(api.replyTo) : null,
-};
+    id: api.id,
+    content: api.content,
+    type: api.type,
+    conversationId: api.conversationId,
+    createdAt: api.createdAt,
+    updatedAt: api.updatedAt,
+    status: api.status,
+    sender: {
+      id: api.sender.id,
+      username: api.sender.username,
+      avatar: api.sender.avatar,
+    },
+    reactions: api.reactions?.map((r) => ({
+      id: r.id,
+      emoji: r.emoji,
+      userId: r.userId,
+      reactedAt: r.reactedAt,
+    })) ?? [],
+    readBy: api.readReceipts?.map((r) => r.userId) ?? [],
+    replyTo: api.replyTo ? mapMessage(api.replyTo) : null,
+  };
 }
