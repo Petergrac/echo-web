@@ -29,6 +29,7 @@ import { useState } from "react";
 import TweetComposerDialog from "../post/create-post/TweetComposerDialog";
 import { useUnreadCount } from "@/lib/hooks/useNotifications";
 import { useWebSocketStore } from "@/stores/websocket-store";
+import { LeftBarPing } from "./LeftBarPing";
 
 const LeftBar = () => {
   const router = useRouter();
@@ -202,6 +203,7 @@ const LeftBar = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <LeftBarPing />
     </div>
   );
 };

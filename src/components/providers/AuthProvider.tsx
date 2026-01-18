@@ -4,18 +4,30 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useStore";
 import LeftBarSkeleton from "../layout/LeftBarSkeleton";
 import PostDetailLoader from "../post/post-detail/PostDetailLoader";
+import api from "@/lib/api/axios";
+import { useWebSocketStore } from "@/stores/websocket-store";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchCurrentUser = useAuthStore((state) => state.fetchCurrentUser);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const setAccessToken = useWebSocketStore((state) => state.setAccessToken);
+  const setChatAccessToken = useWebSocketStore((state) => state.setAccessToken);
 
   useEffect(() => {
     //* Fetch user on mount
-    fetchCurrentUser().catch(() => {
-      //* Silently fail - user might not be logged in
-      //* Axios interceptor will handle redirect if needed
-    });
-  }, [fetchCurrentUser]);
+    // const initializeAuth = async () => {
+    //   try {
+    //     const { data } = await api.get("auth/refresh");
+    //     const token = data.access_token;
+    //     setAccessToken(token);
+    //     setChatAccessToken(token);
+    //   } catch (_error) {
+    //     window.location.href = "/login";
+    //   }
+    console.log("Auth token refreshed and set.");
+    //* Fetch current user data
+    fetchCurrentUser();
+  }, [fetchCurrentUser, setAccessToken, setChatAccessToken]);
 
   //* 1.Show loading state while checking auth
   if (isLoading) {

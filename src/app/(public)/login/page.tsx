@@ -242,8 +242,9 @@ const LoginPage = () => {
 
           {/* Get App Button */}
           <button
-          onClick={()=>toast.info("Mobile app coming soon")}
-          className="group bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-3 mx-auto">
+            onClick={() => toast.info("Mobile app coming soon")}
+            className="group bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-3 mx-auto"
+          >
             <SmartphoneChargingIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span>Get the mobile app</span>
           </button>
