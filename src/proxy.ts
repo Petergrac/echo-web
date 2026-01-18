@@ -33,7 +33,7 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
  
-  //* 4.If its a public route
+  //* 3.If its a public route
   if (pathname === "/") {
     if (token) {
       //* If token exists, redirect to the feed/homepage

@@ -56,7 +56,9 @@ api.interceptors.response.use(
     //* 4.3 Don't refresh if we're already trying to refresh
     if (originalRequest.url?.includes("/auth/refresh")) {
       await api.post("/auth/logout").catch(() => {});
-      window.location.href = "/login";
+      if (typeof window !== "undefined") {
+        window.location.replace("/login");
+      }
       return Promise.reject(error);
     }
 
