@@ -18,6 +18,7 @@ export default function UserPosts() {
     isLoading,
     error,
     isError,
+    refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -53,7 +54,7 @@ export default function UserPosts() {
       <div className="text-center py-10">
         <p className="text-red-500 mb-2">Failed to load posts</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => refetch()}
           className="text-sky-500 hover:underline"
         >
           Try again

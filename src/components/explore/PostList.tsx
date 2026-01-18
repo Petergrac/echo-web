@@ -7,16 +7,19 @@ import { useUniversalStore } from "@/stores/universalStore";
 import PostDetailLoader from "../post/post-detail/PostDetailLoader";
 import PostCard from "../post/feed/PostCard";
 
+export type AxiosError = {
+  response: { data: { message: string[] | "string" } };
+};
 export default function PostsList({ feedType }: { feedType: string }) {
   const { mutedUsers } = useUniversalStore();
   const endpoint =
     feedType === "for-you"
       ? "/posts/feed/for-you"
       : feedType === "following"
-      ? "/posts/feed/following"
-      : feedType === "trending"
-      ? "/posts/feed/trending"
-      : "/posts/feed/discover";
+        ? "/posts/feed/following"
+        : feedType === "trending"
+          ? "/posts/feed/trending"
+          : "/posts/feed/discover";
 
   //* 1. Use the Universal Hook
   const {
@@ -24,13 +27,14 @@ export default function PostsList({ feedType }: { feedType: string }) {
     isLoading,
     error,
     isError,
+    refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
   } = useUniversalInfiniteQuery<Post>(
     ["posts", feedType], //* Unique key per feed type
     endpoint,
-    20
+    20,
   );
 
   //* 2. Flatten the nested pages into a single array
@@ -38,7 +42,7 @@ export default function PostsList({ feedType }: { feedType: string }) {
 
   //* 3. Deduplicate by post ID
   const allPosts = Array.from(
-    new Map(rawPosts.map((post) => [post.id, post])).values()
+    new Map(rawPosts.map((post) => [post.id, post])).values(),
   );
   //* Handle Initial Loading State
   if (isLoading) {
@@ -53,12 +57,14 @@ export default function PostsList({ feedType }: { feedType: string }) {
 
   //* Handle Error State
   if (isError) {
-    toast.error(`${error}`);
+    toast.error(
+      `${(error as unknown as { response: { data: { message: string } } }).response.data.message[0]}`,
+    );
     return (
       <div className="text-center py-10">
         <p className="text-red-500 mb-2">Failed to load posts</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => refetch()}
           className="text-sky-500 hover:underline"
         >
           Try again

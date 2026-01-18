@@ -3,6 +3,8 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import api from "@/lib/api/axios";
 import { UserType } from "@/types/user-type";
 import { useMemo } from "react";
+import { useWebSocketStore } from "./websocket-store";
+import { useChatStore } from "./chat-store";
 
 interface AuthState {
   //* User state
@@ -22,7 +24,6 @@ interface AuthState {
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   getFullName: () => string;
-  hasPermission: (permission: string) => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -140,6 +141,9 @@ export const useAuthStore = create<AuthState>()(
         //* Clear persisted storage
         localStorage.removeItem("auth-storage");
         sessionStorage.clear();
+        useWebSocketStore.getState().disconnectSocket();
+        useChatStore.getState().disconnectSocket();
+
         return;
       },
 
@@ -148,17 +152,6 @@ export const useAuthStore = create<AuthState>()(
         const { user } = get();
         if (!user) return "";
         return `${user.firstName} ${user.lastName}`.trim();
-      },
-
-      hasPermission: (permission: string) => {
-        const { user } = get();
-        // Implement permission logic based on user role/permissions
-        // This is a placeholder - adjust based on your backend
-        if (!user) return false;
-
-        // Example: Check if user has admin role
-        // return user.role === 'admin';
-        return false;
       },
     }),
     {
@@ -170,8 +163,8 @@ export const useAuthStore = create<AuthState>()(
         lastFetched: state.lastFetched,
       }),
       version: 1,
-    }
-  )
+    },
+  ),
 );
 
 //* Custom hooks
@@ -192,9 +185,8 @@ export const useAuthActions = () => {
       setUser: store.setUser,
       clearUser: store.clearUser,
     }),
-    [store]
+    [store],
   );
 };
 export const useUserFullName = () =>
   useAuthStore((state) => state.getFullName());
-

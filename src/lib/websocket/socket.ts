@@ -39,7 +39,7 @@ export type WebSocketEventMap = {
 };
 
 //* 1.Initialize socket with auth
-export const initializeSocket = (): Socket => {
+export const initializeSocket = (accessToken: string): Socket => {
   if (socket?.connected) {
     return socket;
   }
@@ -47,6 +47,9 @@ export const initializeSocket = (): Socket => {
   socket = io(WS_URL, {
     withCredentials: true,
     transports: ["websocket", "polling"],
+    auth: {
+      token: accessToken,
+    },
     reconnection: true,
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,

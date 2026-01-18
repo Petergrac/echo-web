@@ -12,8 +12,10 @@ export interface WebSocketState {
   onlineUsers: Map<string, boolean>;
   notifications: Notification[];
   unreadCount: number;
+  accessToken: string;
 
   //* Actions
+  setAccessToken: (token: string) => void;
   initializeSocket: () => void;
   disconnectSocket: () => void;
   markAsRead: (notificationId: string) => void;
@@ -35,22 +37,38 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
   onlineUsers: new Map(),
   notifications: [],
   unreadCount: 0,
+  accessToken: "",
 
   //* Actions
+  setAccessToken: (accessToken: string) => {
+    set({ accessToken });
+    const { socket } = get();
+    if (socket) {
+      if (socket.connected) socket.disconnect();
+      socket.auth = { token: accessToken };
+      socket.connect();
+    } else {
+      get().initializeSocket();
+    }
+  },
+
   initializeSocket: () => {
     const currentSocket = get().socket;
     if (currentSocket?.connected) {
       return;
     }
-
-    const socket = initializeSocket();
+    const accessToken = get().accessToken;
+    if (!accessToken) return;
+    const socket = initializeSocket(accessToken);
 
     //* Connection events
     socket.on("connect", () => {
+      console.log("WebSocket connected");
       set({ isConnected: true });
     });
 
     socket.on("disconnect", () => {
+      console.log("WebSocket disconnected");
       set({ isConnected: false });
     });
     socket.on("new_notification", (notification: Notification) => {
@@ -61,7 +79,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
           if (!notification.read) {
             state.unreadCount += 1;
           }
-        })
+        }),
       );
       const notificationTitle = getNotificationTitle(notification);
       toast.success(notificationTitle, {
@@ -98,7 +116,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
       set(
         produce((state: WebSocketState) => {
           const index = state.notifications.findIndex(
-            (n) => n.id === notification.id
+            (n) => n.id === notification.id,
           );
           if (index !== -1) {
             state.notifications[index] = notification;
@@ -107,7 +125,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
           if (!notification.read) {
             state.unreadCount = Math.max(0, state.unreadCount - 1);
           }
-        })
+        }),
       );
     });
 
@@ -119,7 +137,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
             read: true,
           }));
           state.unreadCount = 0;
-        })
+        }),
       );
     });
 
@@ -131,7 +149,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
           newMap.set(userId, isOnline);
         });
         set({ onlineUsers: newMap });
-      }
+      },
     );
     socket.on("clear_notifications", () => {
       set({ notifications: [] });
@@ -237,22 +255,22 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     set(
       produce((state: WebSocketState) => {
         const notification = state.notifications.find(
-          (n) => n.id === notificationId
+          (n) => n.id === notificationId,
         );
         state.notifications = state.notifications.filter(
-          (n) => n.id !== notificationId
+          (n) => n.id !== notificationId,
         );
         if (notification && !notification.read) {
           state.unreadCount = Math.max(0, state.unreadCount - 1);
         }
-      })
+      }),
     );
   },
   addNotification: (notification: Notification) => {
     set(
       produce((state: WebSocketState) => {
         const exists = state.notifications.find(
-          (n) => n.id === notification.id
+          (n) => n.id === notification.id,
         );
         if (!exists) {
           state.notifications.unshift(notification);
@@ -260,7 +278,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
             state.unreadCount += 1;
           }
         }
-      })
+      }),
     );
   },
 

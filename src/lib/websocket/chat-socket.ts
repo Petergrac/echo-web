@@ -63,13 +63,16 @@ export interface ChatWebSocketEventMap {
 }
 
 //* 1. Initialize chat socket
-export const initializeChatSocket = (): Socket => {
+export const initializeChatSocket = (accessToken: string): Socket => {
   if (chatSocket?.connected) {
     return chatSocket;
   }
 
   chatSocket = io(`${CHAT_WS_URL}/chat`, {
     withCredentials: true,
+    auth: {
+      token: accessToken,
+    },
     transports: ["websocket", "polling"],
     reconnection: true,
     reconnectionAttempts: 5,

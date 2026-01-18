@@ -6,19 +6,23 @@ export function useUniversalInfiniteQuery<T>(
   queryKey: string[],
   endpoint: string,
   limit: number = 10,
-  options: object = {}
+  options: object = {},
 ) {
   return useInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam = 1 }) => {
-      const { data } = await api.get(
-        `${endpoint}?page=${pageParam}&limit=${limit}`
-      );
-      const items = (Object.values(data).find(Array.isArray) as T[]) ?? [];
-      return {
-        items,
-        pagination: data.pagination as PaginationMeta,
-      };
+      try {
+        const { data } = await api.get(
+          `${endpoint}?page=${pageParam}&limit=${limit}`,
+        );
+        const items = (Object.values(data).find(Array.isArray) as T[]) ?? [];
+        return {
+          items,
+          pagination: data.pagination as PaginationMeta,
+        };
+      } catch (error) {
+        throw error;
+      }
     },
     ...options,
     getNextPageParam: (lastPage) =>

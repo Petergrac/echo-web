@@ -10,7 +10,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import QueryProvider from "@/components/providers/QueryProvider";
-import { WebSocketInitializer } from "@/components/websocket/WebsocketInitializer";
+import { NotificationPermission } from "@/components/websocket/WebsocketInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +24,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Echo Application | Home",
-  description: "Join million users and enjoy other people's posts and stories",
+  description: "Join million users and enjoy other people's posts and stories and share your own.",
 };
 
 export default function RootLayout({
@@ -34,6 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <link rel="icon" href="/echoIcon.png" />
       <body
         className={`${geistSans.variable} w-full sm:max-w-[900px] mx-auto flex justify-center h-screen overflow-hidden ${geistMono.variable} antialiased`}
       >
@@ -46,7 +47,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <QueryProvider>
-              <WebSocketInitializer />
+              <NotificationPermission />
               <SidebarProvider>
                 <div className="sm:hidden">
                   <Sidebar />

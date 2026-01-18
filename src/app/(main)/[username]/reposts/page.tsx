@@ -26,6 +26,7 @@ export default function UserRePosts() {
     error,
     isError,
     fetchNextPage,
+    refetch,
     hasNextPage,
     isFetchingNextPage,
   } = useUniversalInfiniteQuery<Post>(
@@ -59,7 +60,7 @@ export default function UserRePosts() {
       <div className="text-center py-10">
         <p className="text-red-500 mb-2">Failed to load Reposts</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => refetch()}
           className="text-sky-500 hover:underline"
         >
           Try again

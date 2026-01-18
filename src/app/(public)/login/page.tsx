@@ -1,5 +1,7 @@
 "use client";
 import { Switch } from "@/components/ui/switch";
+import { useChatStore } from "@/stores/chat-store";
+import { useWebSocketStore } from "@/stores/websocket-store";
 import axios from "axios";
 import {
   SmartphoneChargingIcon,
@@ -12,6 +14,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 const LoginPage = () => {
   //* Page States
@@ -19,10 +22,11 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { setAccessToken } = useWebSocketStore();
+  const { setChatAccessToken } = useChatStore();
 
   //* Use router instead of redirect
   const router = useRouter();
-
   //* Zustand usage - add initialization check
   const [isClient, setIsClient] = useState(false);
 
@@ -53,16 +57,18 @@ const LoginPage = () => {
       if (email.includes("@")) {
         isEmail = true;
       }
-      await axios.post(
+      const { data } = await axios.post(
         "api/backend/auth/login",
         isEmail
           ? {
               email,
               password,
             }
-          : { username: email, password }
+          : { username: email, password },
       );
-
+      const accessToken = data.access_token;
+      setAccessToken(accessToken);
+      setChatAccessToken(accessToken);
       router.push("/feed");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -235,7 +241,9 @@ const LoginPage = () => {
           </p>
 
           {/* Get App Button */}
-          <button className="group bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-3 mx-auto">
+          <button
+          onClick={()=>toast.info("Mobile app coming soon")}
+          className="group bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-3 mx-auto">
             <SmartphoneChargingIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span>Get the mobile app</span>
           </button>

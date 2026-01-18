@@ -25,6 +25,7 @@ const SelectedPost = () => {
   const {
     data: postDetails,
     isLoading: PostLoading,
+    refetch,
     error,
     isError,
   } = useQuery({
@@ -92,7 +93,7 @@ const SelectedPost = () => {
         </p>
         <p
           className="text-center p-1 mt-2 bg-sky-500 cursor-pointer border rounded-sm"
-          onClick={() => window.location.reload()}
+          onClick={() =>refetch()}
         >
           Reload
         </p>

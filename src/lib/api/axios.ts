@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useChatStore } from "@/stores/chat-store";
+import { useWebSocketStore } from "@/stores/websocket-store";
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 //* 1.Create axios instance
@@ -44,7 +46,7 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
     //* 4.1 Only handle 401 errors (reject others)
-    if (error.response?.status !== 401 || !originalRequest) {
+    if (![401, 403].includes(error.response?.status ?? 0) || !originalRequest) {
       return Promise.reject(error);
     }
     //* 4.2 Prevent infinite retry loops => reject if the original req failed the first time
@@ -53,10 +55,8 @@ api.interceptors.response.use(
     }
     //* 4.3 Don't refresh if we're already trying to refresh
     if (originalRequest.url?.includes("/auth/refresh")) {
-      //* Redirect to login if refresh fails
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
+      await api.post("/auth/logout").catch(() => {});
+      window.location.href = "/login";
       return Promise.reject(error);
     }
 
@@ -73,12 +73,18 @@ api.interceptors.response.use(
 
     try {
       //* 4.6 Try to refresh tokens
-      await api.get("/auth/refresh");
+      const { data } = await api.get("/auth/refresh");
+      const accessToken = data.access_token;
+      const { setChatAccessToken } = useChatStore.getState();
+      const { setAccessToken } = useWebSocketStore.getState();
 
+      setAccessToken(accessToken);
+      setChatAccessToken(accessToken);
       //* 4.7 Refresh succeeded, retry original request
       const response = await api(originalRequest);
 
       //* 4.8 Process any queued requests => resolve
+      isRefreshing = false;
       processQueue(null);
       return response;
     } catch (refreshError) {
@@ -95,7 +101,7 @@ api.interceptors.response.use(
       //? Set refresh to false
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default api;

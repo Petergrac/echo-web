@@ -7,7 +7,7 @@ const publicRoutes = [
   "/verify-email",
 ];
 
-export function proxy(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const token = req.cookies.get("refresh_token")?.value;
 
   const pathname = req.nextUrl.pathname;
@@ -16,7 +16,7 @@ export function proxy(req: NextRequest) {
   const loginRoute = "/login";
 
   const isPublicRoute = publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 
   //* 1.If it's a public route and there is token => allow access
@@ -24,7 +24,7 @@ export function proxy(req: NextRequest) {
     if ((pathname === "/login" || pathname === "/register") && token) {
       return NextResponse.redirect(new URL("/feed", req.url));
     }
-    return NextResponse.next()
+    return NextResponse.next();
   }
   //* 2.If not a public route and no token, redirect to login
   if (!token) {
@@ -32,7 +32,8 @@ export function proxy(req: NextRequest) {
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
-  //* 3.If its a public route
+ 
+  //* 4.If its a public route
   if (pathname === "/") {
     if (token) {
       //* If token exists, redirect to the feed/homepage

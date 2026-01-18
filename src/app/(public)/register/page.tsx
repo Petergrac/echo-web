@@ -16,6 +16,9 @@ import {
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useWebSocketStore } from "@/stores/websocket-store";
+import { useChatStore } from "@/stores/chat-store";
+import { toast } from "sonner";
 
 const errorMap: Record<
   string,
@@ -95,6 +98,8 @@ const SignUpPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
+  const { setAccessToken } = useWebSocketStore();
+  const { setChatAccessToken } = useChatStore();
 
   useEffect(() => {
     setIsClient(true);
@@ -119,9 +124,13 @@ const SignUpPage = () => {
     });
 
     try {
-      await api.post("/auth/signup", {
+      const { data } = await api.post("/auth/signup", {
         ...userDetails,
       });
+      const accessToken = data.access_token;
+
+      setAccessToken(accessToken);
+      setChatAccessToken(accessToken);
       // Redirect on success
       router.push("/login?signup=success");
     } catch (error: any) {
@@ -471,6 +480,7 @@ const SignUpPage = () => {
 
           {/* Get App Button */}
           <button
+            onClick={() => toast.info("Mobile app coming soon")}
             type="button"
             className="group bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-3 mx-auto"
           >

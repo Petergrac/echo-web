@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function ProfileClient({ username, children }: Props) {
-  const { data: user, isLoading, isError, error } = useProfile(username);
+  const { data: user,refetch, isLoading, isError, error } = useProfile(username);
   const pathName = usePathname();
   const href = [`/${username}/followers`, `/${username}/following`];
   if (isLoading && href.includes(pathName)) return <ProfileLoader />;
@@ -22,7 +22,7 @@ export default function ProfileClient({ username, children }: Props) {
       <div className="flex justify-start flex-col items-center">
         <p className="pt-20 pb-5">Failed to fetch user {error?.message}</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => refetch()}
           className="text-center bg-white text-black text-sm p-2 rounded-full"
         >
           Try Again

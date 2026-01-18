@@ -34,8 +34,10 @@ interface ChatState {
   messages: Map<string, ChatMessage[]>; // conversationId -> messages
   typingUsers: Map<string, UserTyping[]>; // conversationId -> typing users
   onlineUsers: Set<string>;
+  accessToken: string;
 
   //* Actions
+  setChatAccessToken: (token: string) => void;
   initializeChatSocket: () => void;
   disconnectSocket: () => void;
 
@@ -98,22 +100,38 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: new Map(),
   typingUsers: new Map(),
   onlineUsers: new Set(),
+  accessToken: "",
 
   //* Actions
+  setChatAccessToken: (accessToken: string) => {
+    set({ accessToken });
+    const { socket } = get();
+    if (socket) {
+      if (socket.connected) socket.disconnect();
+      socket.auth = { token: accessToken };
+      socket.connect();
+    } else {
+      get().initializeChatSocket();
+    }
+  },
+
   initializeChatSocket: () => {
     const currentSocket = get().socket;
+    const accessToken = get().accessToken;
     if (currentSocket?.connected) {
       return;
     }
 
-    const socket = initializeChatSocket();
+    const socket = initializeChatSocket(accessToken);
 
     //* Connection events
     socket.on("connect", () => {
+      console.log("Chat WebSocket Connected")
       set({ isConnected: true });
     });
 
     socket.on("disconnect", () => {
+      console.log("Chat WebSocket Disconnected")
       set({ isConnected: false });
     });
 

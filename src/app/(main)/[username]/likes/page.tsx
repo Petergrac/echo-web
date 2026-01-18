@@ -27,6 +27,7 @@ export default function UserLikedPosts() {
     error,
     isError,
     fetchNextPage,
+    refetch,
     hasNextPage,
     isFetchingNextPage,
   } = useUniversalInfiniteQuery<Post>(
@@ -61,7 +62,7 @@ export default function UserLikedPosts() {
       <div className="text-center py-10">
         <p className="text-red-500 mb-2">Failed to load liked posts</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => refetch()}
           className="text-sky-500 hover:underline"
         >
           Try again

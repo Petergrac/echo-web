@@ -16,6 +16,7 @@ export function useNotifications() {
   const {
     data,
     hasNextPage,
+    refetch,
     isFetchingNextPage,
     fetchNextPage,
     isError,
@@ -34,6 +35,7 @@ export function useNotifications() {
   );
   return {
     notifications,
+    refetch,
     hasNextPage,
     totalItems: notifications.length,
     isError,

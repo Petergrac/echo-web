@@ -23,6 +23,7 @@ export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState<"all" | "unread">("all");
   const {
     notifications,
+    refetch,
     totalItems,
     hasNextPage,
     isError,
@@ -92,7 +93,7 @@ export default function NotificationsPage() {
           <p className="text-muted-foreground mb-4">
             There was an error loading your notifications.
           </p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <Button onClick={() => refetch()}>Try Again</Button>
         </div>
       </div>
     );
