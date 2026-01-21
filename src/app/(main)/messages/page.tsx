@@ -23,7 +23,6 @@ import api from "@/lib/api/axios";
 import Link from "next/link";
 import { Conversation } from "@/types/chat";
 import BackBar from "@/components/post/post-detail/Back-Bar";
-import { useCurrentUser } from "@/stores/useStore";
 
 export default function MessagesPage() {
   const { conversations, loadingConversations } = useChat();
@@ -31,7 +30,6 @@ export default function MessagesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [conversationName, setConversationName] = useState("");
-  const user = useCurrentUser();
 
   const { mutate: createConversation, isPending } = useCreateConversation();
 
@@ -41,7 +39,7 @@ export default function MessagesPage() {
     queryFn: async () => {
       try {
         const response = await api.get(
-          `/users/${user?.username}/followers?page=1&limit=100`
+          `/users/all-users/?page=1&limit=100`
         );
         return response.data;
       } catch (error) {
