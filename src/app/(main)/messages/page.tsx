@@ -179,7 +179,7 @@ export default function MessagesPage() {
                     </p>
                     <ScrollArea className="h-[250px]">
                       <div className="space-y-2">
-                        {users?.followers?.map((user: UserType) => (
+                        {users?.users?.map((user: UserType) => (
                           <div
                             key={user.id}
                             className={`flex items-center p-2 rounded-lg cursor-pointer hover:bg-accent ${
