@@ -39,7 +39,7 @@ export default function MessagesPage() {
     queryFn: async () => {
       try {
         const response = await api.get(
-          `/users/active/all-users?page=1&limit=100`
+          `/users/active/all-users?page=1&limit=100`,
         );
         return response.data;
       } catch (error) {
@@ -73,7 +73,7 @@ export default function MessagesPage() {
             setIsDialogOpen(false);
             setSelectedUsers([]);
           },
-        }
+        },
       );
     } else if (type === "group" && selectedUsers.length > 0) {
       createConversation(
@@ -88,7 +88,7 @@ export default function MessagesPage() {
             setSelectedUsers([]);
             setConversationName("");
           },
-        }
+        },
       );
     }
   };
@@ -97,7 +97,7 @@ export default function MessagesPage() {
     setSelectedUsers((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+        : [...prev, userId],
     );
   };
 
@@ -132,7 +132,7 @@ export default function MessagesPage() {
                     </p>
                     <ScrollArea className="h-[300px]">
                       <div className="space-y-2">
-                        {users?.followers?.map((user: UserType) => (
+                        {users?.users?.map((user: UserType) => (
                           <div
                             key={user.id}
                             className={`flex items-center p-2 rounded-lg cursor-pointer hover:bg-accent ${
