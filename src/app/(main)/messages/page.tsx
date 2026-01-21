@@ -39,7 +39,7 @@ export default function MessagesPage() {
     queryFn: async () => {
       try {
         const response = await api.get(
-          `/users/all-users/?page=1&limit=100`
+          `/users/all-users?page=1&limit=100`
         );
         return response.data;
       } catch (error) {
